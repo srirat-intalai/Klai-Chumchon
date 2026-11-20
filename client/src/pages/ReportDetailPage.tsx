@@ -8,6 +8,7 @@ import { useUiStore } from "../stores/useUiStore";
 import { PriorityBadge, RoleBadge, StatusBadge } from "../components/Badges";
 import { DetailSkeleton, ErrorAlert } from "../components/Feedback";
 import { SingleMap } from "../components/MapView";
+import AirQualityCard from "../components/AirQualityCard";
 import ConfirmModal from "../components/ConfirmModal";
 import StatusModal from "../components/StatusModal";
 import { CategoryLabel } from "../components/CategoryIcon";
@@ -127,6 +128,9 @@ export default function ReportDetailPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm bg-base-200 rounded-box p-4">
                 <p className="flex gap-2"><MapPin size={16} aria-hidden="true" className="mt-0.5 shrink-0" /><span><b>จุดสังเกต:</b> {r.location}</span></p>
+                {r.address && (
+                  <p className="flex gap-2 sm:col-span-2"><MapIcon size={16} aria-hidden="true" className="mt-0.5 shrink-0" /><span><b>ที่อยู่:</b> {r.address}</span></p>
+                )}
                 <p className="flex gap-2"><User size={16} aria-hidden="true" className="mt-0.5 shrink-0" /><span><b>ผู้แจ้ง:</b> {r.reporter.name}</span></p>
                 <p className="flex gap-2"><Clock size={16} aria-hidden="true" className="mt-0.5 shrink-0" /><span><b>แจ้งเมื่อ:</b> {formatDate(r.createdAt)}</span></p>
                 <p className="flex gap-2"><Pencil size={16} aria-hidden="true" className="mt-0.5 shrink-0" /><span><b>อัปเดตล่าสุด:</b> {formatDate(r.updatedAt)}</span></p>
@@ -243,6 +247,8 @@ export default function ReportDetailPage() {
               </a>
             </div>
           </div>
+
+          <AirQualityCard lat={r.latitude} lng={r.longitude} />
 
           {isStaff && (
             <div className="card bg-base-100 border-2 border-primary/40">

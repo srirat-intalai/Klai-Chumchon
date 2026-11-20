@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
+import geoRoutes from "./routes/geoRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import { UPLOAD_DIR } from "./middlewares/upload.js";
 import { errorHandler, notFound } from "./middlewares/errorHandler.js";
@@ -31,6 +32,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api", authRoutes);
 app.use("/api", reportRoutes);
+app.use("/api", geoRoutes);
 
 // ต้องอยู่ท้ายสุดเสมอ
 app.use(notFound);

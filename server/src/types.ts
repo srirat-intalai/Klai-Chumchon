@@ -3,6 +3,7 @@ export interface ReportInput {
   title: string;
   description: string;
   location: string;
+  address: string | null;
   latitude: number;
   longitude: number;
   priority: "LOW" | "MEDIUM" | "HIGH";

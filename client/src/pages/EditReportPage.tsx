@@ -42,6 +42,7 @@ export default function EditReportPage() {
     title: r.title,
     description: r.description,
     location: r.location,
+    address: r.address || "",
     latitude: r.latitude,
     longitude: r.longitude,
     priority: r.priority,

@@ -1,10 +1,12 @@
 import { useAuthStore } from "../stores/useAuthStore";
 import type {
   ApiResponse,
+  AirQuality,
   AuthResult,
   Category,
   Comment,
   LoginData,
+  PlaceResult,
   RegisterData,
   Report,
   ReportDetail,
@@ -59,6 +61,7 @@ function toFormData(data: ReportFormData): FormData {
   fd.append("title", data.title);
   fd.append("description", data.description);
   fd.append("location", data.location);
+  fd.append("address", data.address);
   fd.append("latitude", data.latitude === null ? "" : String(data.latitude));
   fd.append("longitude", data.longitude === null ? "" : String(data.longitude));
   fd.append("priority", data.priority);
@@ -133,4 +136,23 @@ export function addComment(reportId: number, message: string): Promise<Comment> 
 
 export function deleteComment(id: number): Promise<void> {
   return request<void>(`/comments/${id}`, { method: "DELETE" });
+}
+
+// ---------- API ภายนอก (server เราเป็นตัวกลางเรียก Nominatim / Open-Meteo) ----------
+
+function coordsQuery(lat: number, lng: number): string {
+  return new URLSearchParams({ lat: String(lat), lng: String(lng) }).toString();
+}
+
+export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  const data = await request<{ address: string | null }>("/geo/reverse?" + coordsQuery(lat, lng));
+  return data.address;
+}
+
+export function searchPlaces(q: string): Promise<PlaceResult[]> {
+  return request<PlaceResult[]>("/geo/search?" + new URLSearchParams({ q }).toString());
+}
+
+export function fetchAirQuality(lat: number, lng: number): Promise<AirQuality> {
+  return request<AirQuality>("/geo/air?" + coordsQuery(lat, lng));
 }

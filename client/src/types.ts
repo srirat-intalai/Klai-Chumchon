@@ -48,6 +48,7 @@ export interface Report {
   title: string;
   description: string;
   location: string;
+  address: string | null;
   latitude: number;
   longitude: number;
   imageUrl: string | null;
@@ -73,6 +74,7 @@ export interface ReportFormData {
   title: string;
   description: string;
   location: string;
+  address: string;
   latitude: number | null;
   longitude: number | null;
   priority: Priority;
@@ -130,3 +132,19 @@ export const ROLE_LABEL: Record<Role, string> = {
   STAFF: "เจ้าหน้าที่",
   ADMIN: "แอดมิน",
 };
+
+// ---------- ข้อมูลจาก API ภายนอก (ผ่าน /api/geo) ----------
+
+export interface PlaceResult {
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+export interface AirQuality {
+  pm25: number | null;
+  pm10: number | null;
+  aqi: number | null;
+  time: string;
+}

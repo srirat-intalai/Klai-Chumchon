@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { ImagePlus, LocateFixed, X } from "lucide-react";
+import { ImagePlus, LocateFixed, MapPin, Search, X } from "lucide-react";
 import { useCategories } from "../hooks/useReports";
+import { reverseGeocode, searchPlaces } from "../api/reportApi";
 import { LocationPicker } from "./MapView";
 import { PRIORITY_LABEL } from "../types";
-import type { Priority, ReportFormData } from "../types";
+import type { PlaceResult, Priority, ReportFormData } from "../types";
 import { imageSrc } from "../utils";
 
 interface Props {
@@ -20,6 +21,7 @@ const empty: ReportFormData = {
   title: "",
   description: "",
   location: "",
+  address: "",
   latitude: null,
   longitude: null,
   priority: "MEDIUM",
@@ -60,6 +62,12 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
   const [errors, setErrors] = useState<Errors>({});
   const [preview, setPreview] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  const [addrStatus, setAddrStatus] = useState<"idle" | "loading" | "notfound" | "error">("idle");
+  const lookupId = useRef(0);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<PlaceResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [searchMsg, setSearchMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const categories = useCategories();
 
@@ -80,9 +88,53 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
     clearError(field);
   }
 
+  // ปักหมุดใหม่ -> ถาม server ให้แปลงพิกัดเป็นที่อยู่ (Nominatim)
+  // ใช้ lookupId กันกรณีปักหลายครั้งติดกัน แล้วคำตอบเก่ามาถึงทีหลังทับคำตอบใหม่
+  async function lookupAddress(lat: number, lng: number) {
+    const id = ++lookupId.current;
+    setAddrStatus("loading");
+    try {
+      const address = await reverseGeocode(lat, lng);
+      if (id !== lookupId.current) return;
+      setForm((f) => ({ ...f, address: address || "" }));
+      setAddrStatus(address ? "idle" : "notfound");
+    } catch {
+      if (id !== lookupId.current) return;
+      setForm((f) => ({ ...f, address: "" }));
+      setAddrStatus("error");
+    }
+  }
+
   function setPin(lat: number, lng: number) {
-    setForm((f) => ({ ...f, latitude: lat, longitude: lng }));
+    setForm((f) => ({ ...f, latitude: lat, longitude: lng, address: "" }));
     clearError("pin");
+    lookupAddress(lat, lng);
+  }
+
+  async function runSearch() {
+    const q = query.trim();
+    if (q.length < 2) {
+      setSearchMsg("พิมพ์อย่างน้อย 2 ตัวอักษร");
+      return;
+    }
+    setSearching(true);
+    setSearchMsg(null);
+    setResults([]);
+    try {
+      const places = await searchPlaces(q);
+      setResults(places);
+      if (places.length === 0) setSearchMsg("ไม่พบสถานที่นี้ ลองใช้คำอื่น หรือคลิกบนแผนที่แทน");
+    } catch (err) {
+      setSearchMsg(err instanceof Error ? err.message : "ค้นหาไม่สำเร็จ");
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  function pickPlace(p: PlaceResult) {
+    setResults([]);
+    setQuery(p.name || p.address);
+    setPin(p.lat, p.lng);
   }
 
   function pickFile(e: ChangeEvent<HTMLInputElement>) {
@@ -244,17 +296,69 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
               ใช้ตำแหน่งปัจจุบัน
             </button>
           </div>
+          {/* ค้นหาสถานที่ (Nominatim) — อยู่ในฟอร์ม เลยต้องกัน Enter ไม่ให้ส่งฟอร์ม */}
+          <div className="relative">
+            <div className="join w-full">
+              <label htmlFor="place-search" className="sr-only">
+                ค้นหาสถานที่
+              </label>
+              <input
+                id="place-search"
+                type="search"
+                className="input input-bordered input-sm join-item w-full"
+                placeholder="ค้นหาสถานที่ เช่น ตลาด, โรงเรียน, ชื่อถนน"
+                value={query}
+                maxLength={100}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    runSearch();
+                  }
+                }}
+              />
+              <button type="button" className="btn btn-sm join-item" onClick={runSearch} disabled={searching}>
+                {searching ? <span className="loading loading-spinner loading-xs" /> : <Search size={15} aria-hidden="true" />}
+                ค้นหา
+              </button>
+            </div>
+            {results.length > 0 && (
+              <ul className="menu bg-base-100 border border-base-300 rounded-box shadow-lg absolute z-[1000] mt-1 w-full p-1">
+                {results.map((p, i) => (
+                  <li key={i}>
+                    <button type="button" className="flex flex-col items-start gap-0" onClick={() => pickPlace(p)}>
+                      {p.name && <span className="font-medium">{p.name}</span>}
+                      <span className="text-xs text-base-content/70 line-clamp-1">{p.address}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {searchMsg && <p className="text-sm text-base-content/70 mt-1">{searchMsg}</p>}
+          </div>
+
           <div className={`rounded-box ${errors.pin ? "ring-2 ring-error" : ""}`}>
             <LocationPicker lat={form.latitude} lng={form.longitude} onPick={setPin} />
           </div>
           {errors.pin ? (
             <FieldError id="err-pin" text={errors.pin} />
+          ) : form.latitude !== null && form.longitude !== null ? (
+            <div className="text-sm space-y-0.5" aria-live="polite">
+              <p className="flex gap-1.5">
+                <MapPin size={15} aria-hidden="true" className="mt-0.5 shrink-0 text-primary" />
+                <span>
+                  {addrStatus === "loading" && <span className="text-base-content/70">กำลังหาที่อยู่...</span>}
+                  {addrStatus === "notfound" && <span className="text-base-content/70">ไม่พบที่อยู่ของจุดนี้</span>}
+                  {addrStatus === "error" && <span className="text-base-content/70">หาที่อยู่ไม่สำเร็จ (ยังส่งเรื่องได้ตามปกติ)</span>}
+                  {addrStatus === "idle" && (form.address || <span className="text-base-content/70">ไม่มีข้อมูลที่อยู่</span>)}
+                </span>
+              </p>
+              <p className="text-xs text-base-content/60">
+                พิกัด {form.latitude.toFixed(5)}, {form.longitude.toFixed(5)} · ที่อยู่จาก OpenStreetMap
+              </p>
+            </div>
           ) : (
-            <p className="text-sm text-base-content/70">
-              {form.latitude !== null && form.longitude !== null
-                ? `ปักหมุดแล้ว: ${form.latitude.toFixed(5)}, ${form.longitude.toFixed(5)}`
-                : "ยังไม่ได้ปักหมุด"}
-            </p>
+            <p className="text-sm text-base-content/70">ยังไม่ได้ปักหมุด</p>
           )}
         </div>
 

@@ -50,6 +50,7 @@ model Report {
   title       String       @db.VarChar(120)
   description String       @db.VarChar(2000)
   location    String       @db.VarChar(200) // จุดสังเกต เช่น หน้าร้าน/ปากซอย
+  address     String?      @db.VarChar(300) // ที่อยู่จาก Nominatim (แปลงจากพิกัดอัตโนมัติ)
   latitude    Float
   longitude   Float
   imageUrl    String?      @db.VarChar(300)

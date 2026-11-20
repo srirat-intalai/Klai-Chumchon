@@ -45,6 +45,7 @@ export async function getReports(req: Request, res: Response) {
       { title: { contains: search, mode: "insensitive" } },
       { description: { contains: search, mode: "insensitive" } },
       { location: { contains: search, mode: "insensitive" } },
+      { address: { contains: search, mode: "insensitive" } },
     ];
   }
   if (status) where.status = status as ReportStatus;

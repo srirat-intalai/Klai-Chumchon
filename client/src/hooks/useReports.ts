@@ -4,6 +4,7 @@ import {
   createReport,
   deleteComment,
   deleteReport,
+  fetchAirQuality,
   fetchCategories,
   fetchReport,
   fetchReports,
@@ -37,6 +38,17 @@ export function useCategories() {
     queryKey: ["categories"],
     queryFn: fetchCategories,
     staleTime: 1000 * 60 * 10, // หมวดหมู่แทบไม่เปลี่ยน
+  });
+}
+
+// ค่าฝุ่น PM2.5 จาก Open-Meteo (ผ่าน server) ไม่ต้องดึงใหม่บ่อย
+export function useAirQuality(lat: number | undefined, lng: number | undefined) {
+  return useQuery({
+    queryKey: ["air", lat, lng],
+    queryFn: () => fetchAirQuality(lat!, lng!),
+    enabled: lat !== undefined && lng !== undefined,
+    staleTime: 1000 * 60 * 30,
+    retry: 1,
   });
 }
 

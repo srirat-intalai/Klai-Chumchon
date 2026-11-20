@@ -22,11 +22,16 @@ CS319 Internet Programming I · Final Project · สถาปัตยกรร�
 | Server Cache | TanStack Query v5 |
 | Backend | Node.js, Express 5 (TypeScript), cors, dotenv, express.json(), JWT, bcryptjs, multer |
 | Database | PostgreSQL + Prisma ORM 7 (adapter-pg) |
+| API ภายนอก | Nominatim (OpenStreetMap) แปลงพิกัด/ค้นหาสถานที่, Open-Meteo Air Quality ค่าฝุ่น PM2.5 (เรียกผ่าน server ไม่ต้องใช้ API key) |
 
 ## ฟีเจอร์หลัก
 
 - **แผนที่ Leaflet:** หมุดทุกเรื่องแยกสีตามสถานะ (แดง = รอดำเนินการ, เหลือง = กำลังแก้ไข, เขียว = เสร็จสิ้น) คลิกหมุดจะเห็นสรุปและลิงก์ไปหน้ารายละเอียด
 - **แจ้งปัญหา:** ปักหมุดบนแผนที่หรือกดใช้ตำแหน่งปัจจุบัน และแนบรูปได้ (JPG/PNG/WEBP ไม่เกิน 5MB ตรวจจากเนื้อไฟล์จริง)
+- **ที่อยู่อัตโนมัติ + ค้นหาสถานที่ (Nominatim):** ปักหมุดแล้วระบบแปลงพิกัดเป็นที่อยู่ให้เอง หรือพิมพ์ชื่อสถานที่เพื่อเลื่อนแผนที่ไปหา
+- **คุณภาพอากาศ (Open-Meteo):** หน้ารายละเอียดแสดงค่า PM2.5 / PM10 ณ จุดที่แจ้ง พร้อมระดับตามเกณฑ์กรมควบคุมมลพิษ
+- **ที่อยู่อัตโนมัติ + ค้นหาสถานที่ (Nominatim):** ปักหมุดแล้วระบบแปลงพิกัดเป็นที่อยู่ให้เอง หรือพิมพ์ชื่อสถานที่เพื่อเลื่อนแผนที่ไปหา
+- **คุณภาพอากาศ (Open-Meteo):** หน้ารายละเอียดแสดงค่า PM2.5 / PM10 ณ จุดที่แจ้ง พร้อมระดับตามเกณฑ์กรมควบคุมมลพิษ
 - **3 Role:** ประชาชน / เจ้าหน้าที่ / แอดมิน ล็อกอินด้วยอีเมลและรหัสผ่าน (เก็บแบบ bcrypt hash) ใช้ JWT ยืนยันตัวตน
 - **StatusLog:** ทุกครั้งที่เปลี่ยนสถานะจะบันทึกว่าใครเปลี่ยน เปลี่ยนจากอะไรเป็นอะไร และหมายเหตุ แสดงเป็นไทม์ไลน์ในหน้ารายละเอียด
 - **ความคิดเห็น:** ผู้ใช้ที่ล็อกอินแสดงความคิดเห็นได้ พร้อมป้ายบอก role
@@ -65,7 +70,7 @@ Klai-Chumchon/
 │       ├── hooks/                  # useReports.ts, useAuth.ts (useQuery / useMutation)
 │       ├── stores/                 # useUiStore.ts, useAuthStore.ts (Zustand)
 │       ├── layouts/MainLayout.tsx
-│       ├── components/             # MapView, ReportCard, ReportForm, RequireAuth, Badges, Feedback, ConfirmModal
+│       ├── components/             # MapView, ReportCard, ReportForm, RequireAuth, Badges, Feedback, ConfirmModal, AirQualityCard
 │       ├── pages/                  # Home, ReportList, ReportDetail, New, Edit, Map, MyReports,
 │       │                           # Bookmarks, Admin, About, Login, Register, NotFound
 │       ├── router.tsx
@@ -80,8 +85,8 @@ Klai-Chumchon/
 │   └── src/
 │       ├── server.ts
 │       ├── lib/prisma.ts
-│       ├── routes/                 # authRoutes.ts, reportRoutes.ts
-│       ├── controllers/            # auth, user, report, comment, category
+│       ├── routes/                 # authRoutes.ts, reportRoutes.ts, geoRoutes.ts
+│       ├── controllers/            # auth, user, report, comment, category, geo (เรียก API ภายนอก)
 │       ├── middlewares/            # auth.ts (JWT + role), upload.ts (multer), errorHandler.ts
 │       ├── validators/reportValidator.ts
 │       └── types/
@@ -123,6 +128,9 @@ Klai-Chumchon/
 | DELETE | `/api/reports/:id` | ตามสิทธิ์ | ลบเรื่อง (ความคิดเห็น/StatusLog/รูปลบตาม) | 200 / 403 / 404 |
 | POST | `/api/reports/:id/comments` | ล็อกอิน | เพิ่มความคิดเห็น | 201 / 400 / 404 |
 | DELETE | `/api/comments/:id` | เจ้าของ/แอดมิน | ลบความคิดเห็น | 200 / 403 / 404 |
+| GET | `/api/geo/reverse?lat=&lng=` | - | พิกัด → ที่อยู่ (Nominatim) | 200 / 400 / 502 |
+| GET | `/api/geo/search?q=` | - | ค้นหาสถานที่ในไทย (Nominatim) | 200 / 400 / 502 |
+| GET | `/api/geo/air?lat=&lng=` | - | ค่าฝุ่น PM2.5 / PM10 ปัจจุบัน (Open-Meteo) | 200 / 400 / 502 |
 
 ทุก response ใช้รูปแบบ `{ success, message?, data? }` ข้อมูลไม่ผ่าน validation จะได้ 400 พร้อม `errors`
 

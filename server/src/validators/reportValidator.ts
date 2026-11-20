@@ -33,6 +33,7 @@ export function checkReport(body: unknown): { errors: string[]; data: ReportInpu
   const title = readText(raw.title);
   const description = readText(raw.description);
   const location = readText(raw.location);
+  const address = readText(raw.address);
   const priority = readText(raw.priority) || "MEDIUM";
   const categoryId = parseId(raw.categoryId);
   const latitude = readNumber(raw.latitude);
@@ -46,6 +47,9 @@ export function checkReport(body: unknown): { errors: string[]; data: ReportInpu
   }
   if (location.length < 3 || location.length > 200) {
     errors.push("กรุณาระบุจุดสังเกต (3-200 ตัวอักษร)");
+  }
+  if (address.length > 300) {
+    errors.push("ที่อยู่ยาวเกิน 300 ตัวอักษร");
   }
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
     errors.push("กรุณาปักหมุดตำแหน่งบนแผนที่");
@@ -65,6 +69,7 @@ export function checkReport(body: unknown): { errors: string[]; data: ReportInpu
       title,
       description,
       location,
+      address: address === "" ? null : address,
       latitude,
       longitude,
       priority: priority as ReportInput["priority"],
