@@ -4,8 +4,8 @@ import path from "node:path";
 import { Prisma } from "@prisma/client";
 import type { ReportStatus } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
-import { UPLOAD_DIR } from "../middlewares/upload.js";
-import { checkNote, checkReport, checkStatus, parseId } from "../validators/reportValidator.js";
+import { isRealImage, UPLOAD_DIR } from "../middlewares/upload.js";
+import { checkNote, checkReport, checkStatus, field, parseId } from "../validators/reportValidator.js";
 
 const userBrief = { select: { id: true, name: true, role: true } } as const;
 
@@ -17,6 +17,14 @@ async function removeImage(imageUrl: string | null | undefined) {
   } catch {
     // ไฟล์อาจถูกลบไปแล้ว
   }
+}
+
+// มีไฟล์แนบมา แต่เนื้อไฟล์ไม่ใช่รูปจริง (เช่น เปลี่ยนนามสกุลหลอก) -> ลบทิ้งแล้วตอบ false
+async function rejectFakeImage(req: Request): Promise<boolean> {
+  if (!req.file) return false;
+  if (await isRealImage(req.file.path)) return false;
+  await removeImage("/uploads/" + req.file.filename);
+  return true;
 }
 
 // ประชาชนแก้/ลบได้เฉพาะเรื่องของตัวเองที่ยังรอดำเนินการ เจ้าหน้าที่ลงมือแล้วห้ามแก้
@@ -81,6 +89,9 @@ export async function getReportById(req: Request, res: Response) {
 
 // POST /api/reports  (multipart/form-data มีรูปหรือไม่มีก็ได้)
 export async function createReport(req: Request, res: Response) {
+  if (await rejectFakeImage(req)) {
+    return res.status(400).json({ success: false, message: "ไฟล์ที่แนบไม่ใช่รูปภาพจริง" });
+  }
   const newImage = req.file ? "/uploads/" + req.file.filename : null;
 
   const result = checkReport(req.body);
@@ -96,20 +107,30 @@ export async function createReport(req: Request, res: Response) {
   }
 
   // สร้างเรื่องพร้อม log แรกในคำสั่งเดียว (nested create = transaction เดียวกัน)
-  const report = await prisma.report.create({
-    data: {
-      ...result.data,
-      imageUrl: newImage,
-      reporterId: req.user!.id,
-      statusLogs: { create: { toStatus: "PENDING", note: "แจ้งเรื่องเข้าระบบ", changedById: req.user!.id } },
-    },
-    include: { category: true, reporter: userBrief },
-  });
+  let report;
+  try {
+    report = await prisma.report.create({
+      data: {
+        ...result.data,
+        imageUrl: newImage,
+        reporterId: req.user!.id,
+        statusLogs: { create: { toStatus: "PENDING", note: "แจ้งเรื่องเข้าระบบ", changedById: req.user!.id } },
+      },
+      include: { category: true, reporter: userBrief },
+    });
+  } catch (err) {
+    // บันทึกไม่สำเร็จ ลบรูปที่เพิ่งอัปโหลดทิ้ง ไม่ให้ค้างในโฟลเดอร์
+    await removeImage(newImage);
+    throw err;
+  }
   res.status(201).json({ success: true, message: "แจ้งเรื่องเรียบร้อย", data: report });
 }
 
 // PUT /api/reports/:id  (เจ้าของตอนยังรอดำเนินการ หรือเจ้าหน้าที่/แอดมิน)
 export async function updateReport(req: Request, res: Response) {
+  if (await rejectFakeImage(req)) {
+    return res.status(400).json({ success: false, message: "ไฟล์ที่แนบไม่ใช่รูปภาพจริง" });
+  }
   const newImage = req.file ? "/uploads/" + req.file.filename : null;
 
   const id = parseId(req.params.id);
@@ -143,13 +164,19 @@ export async function updateReport(req: Request, res: Response) {
   // มีรูปใหม่ = แทนรูปเดิม, ส่ง removeImage=true = ลบรูปทิ้ง, ไม่ส่งอะไร = ใช้รูปเดิม
   let imageUrl = old.imageUrl;
   if (newImage) imageUrl = newImage;
-  else if (req.body?.removeImage === "true") imageUrl = null;
+  else if (field(req.body, "removeImage") === "true") imageUrl = null;
 
-  const report = await prisma.report.update({
-    where: { id },
-    data: { ...result.data, imageUrl },
-    include: { category: true, reporter: userBrief },
-  });
+  let report;
+  try {
+    report = await prisma.report.update({
+      where: { id },
+      data: { ...result.data, imageUrl },
+      include: { category: true, reporter: userBrief },
+    });
+  } catch (err) {
+    await removeImage(newImage);
+    throw err;
+  }
 
   if (imageUrl !== old.imageUrl) await removeImage(old.imageUrl);
   res.json({ success: true, message: "บันทึกการแก้ไขแล้ว", data: report });
@@ -162,11 +189,11 @@ export async function updateReportStatus(req: Request, res: Response) {
     return res.status(400).json({ success: false, message: "รหัสเรื่องไม่ถูกต้อง" });
   }
 
-  const status = checkStatus(req.body?.status);
+  const status = checkStatus(field(req.body, "status"));
   if (!status) {
     return res.status(400).json({ success: false, message: "สถานะต้องเป็น PENDING, IN_PROGRESS หรือ RESOLVED" });
   }
-  const noteCheck = checkNote(req.body?.note);
+  const noteCheck = checkNote(field(req.body, "note"));
   if (noteCheck.error) {
     return res.status(400).json({ success: false, message: noteCheck.error });
   }
@@ -179,14 +206,17 @@ export async function updateReportStatus(req: Request, res: Response) {
     return res.status(400).json({ success: false, message: "เรื่องนี้อยู่ในสถานะนี้อยู่แล้ว" });
   }
 
-  // อัปเดตสถานะกับเขียน log ต้องสำเร็จพร้อมกัน
-  const [report] = await prisma.$transaction([
-    prisma.report.update({
-      where: { id },
+  // อัปเดตสถานะกับเขียน log ต้องสำเร็จพร้อมกัน (transaction)
+  // updateMany ใส่เงื่อนไข status เดิมไว้ด้วย: ถ้าเจ้าหน้าที่อีกคนเปลี่ยนไปก่อนแล้ว จะอัปเดตได้ 0 แถว
+  // แบบนี้ fromStatus ใน log จะถูกต้องเสมอ ไม่มีใครทับของใคร
+  const changed = await prisma.$transaction(async (tx) => {
+    const result = await tx.report.updateMany({
+      where: { id, status: old.status },
       data: { status: status as ReportStatus },
-      include: { category: true, reporter: userBrief },
-    }),
-    prisma.statusLog.create({
+    });
+    if (result.count === 0) return false;
+
+    await tx.statusLog.create({
       data: {
         reportId: id,
         fromStatus: old.status,
@@ -194,8 +224,15 @@ export async function updateReportStatus(req: Request, res: Response) {
         note: noteCheck.note,
         changedById: req.user!.id,
       },
-    }),
-  ]);
+    });
+    return true;
+  });
+
+  if (!changed) {
+    return res.status(409).json({ success: false, message: "มีคนเปลี่ยนสถานะเรื่องนี้ไปก่อนแล้ว กรุณาดูสถานะล่าสุดแล้วลองใหม่" });
+  }
+
+  const report = await prisma.report.findUnique({ where: { id }, include: { category: true, reporter: userBrief } });
   res.json({ success: true, message: "อัปเดตสถานะแล้ว", data: report });
 }
 

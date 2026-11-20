@@ -14,12 +14,13 @@ import type { ReportFilters, ReportFormData, ReportStatus } from "../types";
 
 // ---------- อ่านข้อมูล ----------
 
-export function useReports(filters: ReportFilters) {
+// keepPrevious = ตอนเปลี่ยนตัวกรอง ให้โชว์รายการเดิมไว้ก่อน หน้าจอจะไม่กระพริบ
+// เปิดเฉพาะหน้าที่ผู้ใช้กดเปลี่ยนตัวกรองเอง หน้าอื่นห้ามเปิด ไม่งั้นอาจเห็นข้อมูลชุดอื่นแวบขึ้นมา
+export function useReports(filters: ReportFilters, keepPrevious = false) {
   return useQuery({
     queryKey: ["reports", filters],
     queryFn: () => fetchReports(filters),
-    // ตอนเปลี่ยนตัวกรอง ให้โชว์ของเดิมไว้ก่อน หน้าจอจะไม่กระพริบ
-    placeholderData: keepPreviousData,
+    placeholderData: keepPrevious ? keepPreviousData : undefined,
   });
 }
 

@@ -97,7 +97,7 @@ export default function AboutPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-sm text-base-content/60">
+          <p className="text-sm text-base-content/70">
             ข้อมูลเรื่องที่แจ้งในระบบเป็นข้อมูลตัวอย่างสำหรับการเรียน ชื่อบุคคลและจุดสังเกตไม่ใช่ข้อมูลจริง
           </p>
         </div>

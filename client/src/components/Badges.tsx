@@ -1,17 +1,12 @@
+import { Flame } from "lucide-react";
 import { PRIORITY_LABEL, ROLE_LABEL, STATUS_LABEL } from "../types";
 import type { Priority, ReportStatus, Role } from "../types";
 
-// สีตรงกับหมุดบนแผนที่: แดง / เหลือง / เขียว
+// สีแดง/เหลือง/เขียว ใช้กับ "สถานะ" อย่างเดียว ให้ตรงกับหมุดบนแผนที่
 const statusColor: Record<ReportStatus, string> = {
   PENDING: "badge-error",
   IN_PROGRESS: "badge-warning",
   RESOLVED: "badge-success",
-};
-
-const priorityColor: Record<Priority, string> = {
-  LOW: "badge-ghost",
-  MEDIUM: "badge-neutral",
-  HIGH: "badge-error",
 };
 
 const roleColor: Record<Role, string> = {
@@ -24,12 +19,17 @@ export function StatusBadge({ status }: { status: ReportStatus }) {
   return <span className={`badge ${statusColor[status]} whitespace-nowrap`}>{STATUS_LABEL[status]}</span>;
 }
 
+// ความเร่งด่วนเป็นข้อความสีกลาง ๆ จะได้ไม่แย่งความสนใจกับสีสถานะ
 export function PriorityBadge({ priority }: { priority: Priority }) {
-  return (
-    <span className={`badge badge-outline ${priorityColor[priority]} whitespace-nowrap`}>
-      {PRIORITY_LABEL[priority]}
-    </span>
-  );
+  if (priority === "HIGH") {
+    return (
+      <span className="inline-flex items-center gap-1 text-sm font-semibold whitespace-nowrap">
+        <Flame size={15} aria-hidden="true" />
+        {PRIORITY_LABEL.HIGH}
+      </span>
+    );
+  }
+  return <span className="text-sm text-base-content/70 whitespace-nowrap">{PRIORITY_LABEL[priority]}</span>;
 }
 
 export function RoleBadge({ role }: { role: Role }) {

@@ -3,11 +3,11 @@ import type { FormEvent } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import { useMe, useRegister } from "../hooks/useAuth";
 import { useUiStore } from "../stores/useUiStore";
+import { safeNext } from "../utils";
 
 export default function RegisterPage() {
   const [params] = useSearchParams();
-  const rawNext = params.get("next");
-  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  const next = safeNext(params.get("next"));
   const navigate = useNavigate();
   const register = useRegister();
   const { user } = useMe();
@@ -47,7 +47,7 @@ export default function RegisterPage() {
       <form onSubmit={submit} className="card bg-base-100 border border-base-300">
         <div className="card-body gap-4">
           <h1 className="text-2xl font-bold text-center">สมัครสมาชิก</h1>
-          <p className="text-sm text-center text-base-content/60">สมัครแล้วแจ้งปัญหาและแสดงความคิดเห็นได้ทันที</p>
+          <p className="text-sm text-center text-base-content/70">สมัครแล้วแจ้งปัญหาและแสดงความคิดเห็นได้ทันที</p>
 
           {shownError && (
             <div role="alert" className="alert alert-error text-sm">

@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { useDeleteReport, useReports, useUpdateStatus } from "../hooks/useReports";
+import { Pencil, RefreshCw, Trash2 } from "lucide-react";
+import { useDeleteReport, useReports } from "../hooks/useReports";
 import { useMe, useUpdateRole, useUsers } from "../hooks/useAuth";
 import { useUiStore } from "../stores/useUiStore";
-import { PriorityBadge, RoleBadge } from "../components/Badges";
+import { PriorityBadge, RoleBadge, StatusBadge } from "../components/Badges";
+import { CategoryLabel } from "../components/CategoryIcon";
+import StatusModal from "../components/StatusModal";
 import { EmptyState, ErrorAlert, TableSkeleton } from "../components/Feedback";
 import ConfirmModal from "../components/ConfirmModal";
 import { ROLE_LABEL, STATUS_LABEL } from "../types";
@@ -13,22 +16,12 @@ import { formatDate } from "../utils";
 function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "">("");
   const [target, setTarget] = useState<Report | null>(null);
+  const [statusTarget, setStatusTarget] = useState<Report | null>(null);
 
-  const reports = useReports({ search: "", status: statusFilter, categoryId: 0 });
-  const updateStatus = useUpdateStatus();
+  const reports = useReports({ search: "", status: statusFilter, categoryId: 0 }, true);
   const deleteReport = useDeleteReport();
   const showToast = useUiStore((s) => s.showToast);
   const removeBookmark = useUiStore((s) => s.removeBookmark);
-
-  function changeStatus(id: number, status: ReportStatus) {
-    updateStatus.mutate(
-      { id, status, note: "" },
-      {
-        onSuccess: () => showToast(`เปลี่ยนสถานะเรื่อง #${id} เป็น "${STATUS_LABEL[status]}"`),
-        onError: (err) => showToast(err.message, "error"),
-      }
-    );
-  }
 
   function confirmDelete() {
     if (!target) return;
@@ -84,37 +77,45 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
                     <Link to={`/reports/${r.id}`} className="link link-hover font-medium">
                       {r.title}
                     </Link>
-                    <div className="text-xs text-base-content/50">
+                    <div className="text-xs text-base-content/70">
                       {r.reporter.name} · {formatDate(r.createdAt)}
                     </div>
                   </td>
                   <td className="hidden md:table-cell whitespace-nowrap">
-                    {r.category.icon} {r.category.name}
+                    <CategoryLabel category={r.category} />
                   </td>
                   <td className="hidden sm:table-cell">
                     <PriorityBadge priority={r.priority} />
                   </td>
                   <td>
-                    <select
-                      className="select select-bordered select-xs"
-                      value={r.status}
-                      disabled={updateStatus.isPending}
-                      onChange={(e) => changeStatus(r.id, e.target.value as ReportStatus)}
-                    >
-                      <option value="PENDING">{STATUS_LABEL.PENDING}</option>
-                      <option value="IN_PROGRESS">{STATUS_LABEL.IN_PROGRESS}</option>
-                      <option value="RESOLVED">{STATUS_LABEL.RESOLVED}</option>
-                    </select>
+                    <StatusBadge status={r.status} />
                   </td>
-                  <td className="text-right whitespace-nowrap">
-                    <Link to={`/reports/${r.id}/edit`} className="btn btn-ghost btn-xs">
-                      แก้ไข
-                    </Link>
-                    {isAdmin && (
-                      <button className="btn btn-ghost btn-xs text-error" onClick={() => setTarget(r)}>
-                        ลบ
+                  <td>
+                    {/* ปุ่มลบแยกออกไปท้ายสุด เว้นระยะ กันกดพลาด */}
+                    <div className="flex items-center justify-end gap-2">
+                      <button className="btn btn-sm btn-primary btn-outline" onClick={() => setStatusTarget(r)}>
+                        <RefreshCw size={14} aria-hidden="true" />
+                        <span className="hidden sm:inline">อัปเดตสถานะ</span>
                       </button>
-                    )}
+                      <Link
+                        to={`/reports/${r.id}/edit`}
+                        className="btn btn-sm btn-ghost"
+                        aria-label={`แก้ไขเรื่อง #${r.id}`}
+                        title="แก้ไข"
+                      >
+                        <Pencil size={15} aria-hidden="true" />
+                      </Link>
+                      {isAdmin && (
+                        <button
+                          className="btn btn-sm btn-ghost text-error ml-3"
+                          onClick={() => setTarget(r)}
+                          aria-label={`ลบเรื่อง #${r.id}`}
+                          title="ลบ"
+                        >
+                          <Trash2 size={15} aria-hidden="true" />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -122,6 +123,8 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
           </table>
         </div>
       )}
+
+      {statusTarget && <StatusModal report={statusTarget} onClose={() => setStatusTarget(null)} />}
 
       <ConfirmModal
         open={target !== null}
@@ -169,7 +172,7 @@ function UsersTab({ myId }: { myId: number }) {
             <tr key={u.id}>
               <td>
                 <div className="font-medium">{u.name}</div>
-                <div className="text-xs text-base-content/50 sm:hidden">{u.email}</div>
+                <div className="text-xs text-base-content/70 sm:hidden">{u.email}</div>
               </td>
               <td className="hidden sm:table-cell">{u.email}</td>
               <td className="hidden md:table-cell">{u._count?.reports ?? 0}</td>
@@ -209,7 +212,7 @@ export default function AdminPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold">จัดการระบบ</h1>
-        <p className="text-base-content/60 text-sm">
+        <p className="text-base-content/70 text-sm">
           {isAdmin ? "อัปเดตสถานะ แก้ไข ลบเรื่อง และกำหนดสิทธิ์ผู้ใช้" : "อัปเดตสถานะและแก้ไขเรื่องที่แจ้ง"}
         </p>
       </div>

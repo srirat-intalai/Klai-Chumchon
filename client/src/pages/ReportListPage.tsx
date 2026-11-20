@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Search, X } from "lucide-react";
 import { useCategories, useReports } from "../hooks/useReports";
 import { useUiStore } from "../stores/useUiStore";
 import ReportCard from "../components/ReportCard";
@@ -22,7 +23,7 @@ export default function ReportListPage() {
     return () => clearTimeout(timer);
   }, [text, setSearch]);
 
-  const reports = useReports({ search, status, categoryId });
+  const reports = useReports({ search, status, categoryId }, true);
   const categories = useCategories();
 
   const hasFilter = search !== "" || status !== "" || categoryId !== 0;
@@ -31,7 +32,7 @@ export default function ReportListPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold">เรื่องที่แจ้งทั้งหมด</h1>
-        <p className="text-base-content/60 text-sm">
+        <p className="text-base-content/70 text-sm">
           {reports.data ? `พบ ${reports.data.length} เรื่อง` : "กำลังโหลด..."}
           {reports.isFetching && !reports.isLoading && <span className="loading loading-dots loading-xs ml-2" />}
         </p>
@@ -39,12 +40,17 @@ export default function ReportListPage() {
 
       <div className="card bg-base-100 border border-base-300">
         <div className="card-body p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input
-            className="input input-bordered w-full md:col-span-2"
-            placeholder="🔍 ค้นหาหัวข้อ รายละเอียด หรือสถานที่"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
+          <label className="input input-bordered w-full md:col-span-2 flex items-center gap-2">
+            <Search size={16} aria-hidden="true" className="opacity-60" />
+            <input
+              type="search"
+              className="grow"
+              placeholder="ค้นหาหัวข้อ รายละเอียด หรือจุดสังเกต"
+              aria-label="ค้นหา"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          </label>
           <select
             className="select select-bordered w-full"
             value={categoryId}
@@ -53,7 +59,7 @@ export default function ReportListPage() {
             <option value={0}>ทุกหมวดหมู่</option>
             {categories.data?.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.icon} {c.name}
+                {c.name}
               </option>
             ))}
           </select>
@@ -75,7 +81,7 @@ export default function ReportListPage() {
                 setText("");
               }}
             >
-              ✕ ล้างตัวกรอง
+              <X size={14} aria-hidden="true" /> ล้างตัวกรอง
             </button>
           )}
         </div>

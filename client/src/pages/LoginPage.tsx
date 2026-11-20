@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import { useLogin, useMe } from "../hooks/useAuth";
 import { useUiStore } from "../stores/useUiStore";
+import { safeNext } from "../utils";
 
 // บัญชีจาก seed.ts ไว้กดเลือกตอนสาธิต
 const demoAccounts = [
@@ -10,12 +11,6 @@ const demoAccounts = [
   { label: "เจ้าหน้าที่", email: "staff1@klai.local" },
   { label: "แอดมิน", email: "admin@klai.local" },
 ];
-
-// กันไม่ให้ ?next= พาออกไปเว็บอื่น
-function safeNext(value: string | null): string {
-  if (value && value.startsWith("/") && !value.startsWith("//")) return value;
-  return "/";
-}
 
 export default function LoginPage() {
   const [params] = useSearchParams();

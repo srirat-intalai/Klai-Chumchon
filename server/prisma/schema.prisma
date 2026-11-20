@@ -40,7 +40,7 @@ model User {
 model Category {
   id        Int      @id @default(autoincrement())
   name      String   @unique @db.VarChar(50)
-  icon      String   @db.VarChar(10)
+  icon      String   @db.VarChar(20) // คีย์ไอคอน เช่น road, light
   reports   Report[]
   createdAt DateTime @default(now())
 }

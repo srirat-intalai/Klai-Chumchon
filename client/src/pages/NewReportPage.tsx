@@ -22,7 +22,7 @@ export default function NewReportPage() {
     <div className="max-w-3xl mx-auto space-y-4">
       <div>
         <h1 className="text-2xl font-bold">แจ้งปัญหาใหม่</h1>
-        <p className="text-base-content/60 text-sm">ช่องที่มี * ต้องกรอก</p>
+        <p className="text-base-content/70 text-sm">ช่องที่มี * ต้องกรอก</p>
       </div>
       <ReportForm
         submitText="ส่งเรื่อง"

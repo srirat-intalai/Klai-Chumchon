@@ -15,7 +15,7 @@ export default function MapPage() {
   const setStatus = useUiStore((s) => s.setStatus);
   const setCategoryId = useUiStore((s) => s.setCategoryId);
 
-  const reports = useReports({ search: "", status, categoryId });
+  const reports = useReports({ search: "", status, categoryId }, true);
   const categories = useCategories();
 
   return (
@@ -23,7 +23,7 @@ export default function MapPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">แผนที่ปัญหาในชุมชน</h1>
-          <p className="text-sm text-base-content/60">
+          <p className="text-sm text-base-content/70">
             {reports.data ? `แสดง ${reports.data.length} จุด` : "กำลังโหลด..."} · คลิกหมุดเพื่อดูรายละเอียด
           </p>
         </div>
@@ -36,7 +36,7 @@ export default function MapPage() {
             <option value={0}>ทุกหมวดหมู่</option>
             {categories.data?.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.icon} {c.name}
+                {c.name}
               </option>
             ))}
           </select>

@@ -3,6 +3,14 @@
   themes: emerald --default, dim;
 }
 
+/* ปรับธีม emerald: พื้นหลังเป็นเทาอมเขียวอ่อน ไม่ทึบแบนเหมือนค่าเริ่มต้น */
+@plugin "daisyui/theme" {
+  name: "emerald";
+  default: true;
+  --color-base-200: oklch(97% 0.012 165);
+  --color-base-300: oklch(91% 0.018 165);
+}
+
 @layer base {
   body {
     font-family: 'Prompt', system-ui, sans-serif;

@@ -23,13 +23,14 @@ const users: { name: string; email: string; role: Role; phone: string | null }[]
   { name: "วิชัย ทองดี", email: "wichai@klai.local", role: "CITIZEN", phone: "0855555555" },
 ];
 
+// icon = ชื่อคีย์ หน้าบ้านแปลงเป็นไอคอน SVG เอง (ดู CategoryIcon.tsx)
 const categories = [
-  { name: "ถนนและทางเท้า", icon: "🛣️" },
-  { name: "ไฟฟ้าและไฟส่องทาง", icon: "💡" },
-  { name: "น้ำประปาและน้ำท่วม", icon: "💧" },
-  { name: "ขยะและความสะอาด", icon: "🗑️" },
-  { name: "ความปลอดภัย", icon: "🚨" },
-  { name: "สวนและพื้นที่สาธารณะ", icon: "🌳" },
+  { name: "ถนนและทางเท้า", icon: "road" },
+  { name: "ไฟฟ้าและไฟส่องทาง", icon: "light" },
+  { name: "น้ำประปาและน้ำท่วม", icon: "water" },
+  { name: "ขยะและความสะอาด", icon: "trash" },
+  { name: "ความปลอดภัย", icon: "safety" },
+  { name: "สวนและพื้นที่สาธารณะ", icon: "park" },
 ];
 
 // จุดกลาง: สนามกีฬา ม.กรุงเทพ วิทยาเขตรังสิต (ประมาณ)

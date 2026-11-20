@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Category" ALTER COLUMN "icon" SET DATA TYPE VARCHAR(20);

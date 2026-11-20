@@ -1,4 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router";
+import { ArrowLeft } from "lucide-react";
 import { useReport, useUpdateReport } from "../hooks/useReports";
 import { useMe } from "../hooks/useAuth";
 import { useUiStore } from "../stores/useUiStore";
@@ -31,7 +32,7 @@ export default function EditReportPage() {
       <div className="space-y-4 max-w-xl mx-auto">
         <ErrorAlert message="แก้ไขได้เฉพาะเรื่องของคุณที่ยังรอดำเนินการ" />
         <Link to={`/reports/${r.id}`} className="btn btn-ghost btn-sm">
-          ← กลับไปหน้ารายละเอียด
+          <ArrowLeft size={16} aria-hidden="true" /> กลับไปหน้ารายละเอียด
         </Link>
       </div>
     );

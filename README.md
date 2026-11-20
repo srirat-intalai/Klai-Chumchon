@@ -17,7 +17,7 @@ CS319 Internet Programming I · Final Project · สถาปัตยกรร�
 
 | ส่วน | เทคโนโลยี |
 |---|---|
-| Frontend | Vite, React 19 (TypeScript), React Router v7, Tailwind CSS v4 + DaisyUI 5, Leaflet (react-leaflet) |
+| Frontend | Vite, React 19 (TypeScript), React Router v7, Tailwind CSS v4 + DaisyUI 5, Leaflet (react-leaflet), lucide-react (ไอคอน) |
 | Client State | Zustand (persist ลง LocalStorage) |
 | Server Cache | TanStack Query v5 |
 | Backend | Node.js, Express 5 (TypeScript), cors, dotenv, express.json(), JWT, bcryptjs, multer |
@@ -26,7 +26,7 @@ CS319 Internet Programming I · Final Project · สถาปัตยกรร�
 ## ฟีเจอร์หลัก
 
 - **แผนที่ Leaflet:** หมุดทุกเรื่องแยกสีตามสถานะ (แดง = รอดำเนินการ, เหลือง = กำลังแก้ไข, เขียว = เสร็จสิ้น) คลิกหมุดจะเห็นสรุปและลิงก์ไปหน้ารายละเอียด
-- **แจ้งปัญหา:** ปักหมุดบนแผนที่หรือกดใช้ตำแหน่งปัจจุบัน และแนบรูปได้ (JPG/PNG/WEBP ไม่เกิน 5MB)
+- **แจ้งปัญหา:** ปักหมุดบนแผนที่หรือกดใช้ตำแหน่งปัจจุบัน และแนบรูปได้ (JPG/PNG/WEBP ไม่เกิน 5MB ตรวจจากเนื้อไฟล์จริง)
 - **3 Role:** ประชาชน / เจ้าหน้าที่ / แอดมิน ล็อกอินด้วยอีเมลและรหัสผ่าน (เก็บแบบ bcrypt hash) ใช้ JWT ยืนยันตัวตน
 - **StatusLog:** ทุกครั้งที่เปลี่ยนสถานะจะบันทึกว่าใครเปลี่ยน เปลี่ยนจากอะไรเป็นอะไร และหมายเหตุ แสดงเป็นไทม์ไลน์ในหน้ารายละเอียด
 - **ความคิดเห็น:** ผู้ใช้ที่ล็อกอินแสดงความคิดเห็นได้ พร้อมป้ายบอก role
@@ -110,7 +110,7 @@ Klai-Chumchon/
 |---|---|---|---|---|
 | GET | `/api/health` | - | เช็กว่า server ทำงาน | 200 |
 | POST | `/api/auth/register` | - | สมัครสมาชิก (role ประชาชน) | 201 / 400 / 409 |
-| POST | `/api/auth/login` | - | เข้าสู่ระบบ ได้ JWT | 200 / 400 / 401 |
+| POST | `/api/auth/login` | - | เข้าสู่ระบบ ได้ JWT (ผิดเกิน 5 ครั้งใน 15 นาทีต้องรอ) | 200 / 400 / 401 / 429 |
 | GET | `/api/auth/me` | ล็อกอิน | ข้อมูลผู้ใช้ปัจจุบัน | 200 / 401 |
 | GET | `/api/users` | แอดมิน | รายชื่อผู้ใช้ | 200 / 401 / 403 |
 | PATCH | `/api/users/:id/role` | แอดมิน | เปลี่ยน role | 200 / 400 / 403 / 404 |
@@ -119,7 +119,7 @@ Klai-Chumchon/
 | GET | `/api/reports/:id` | - | รายละเอียด + ความคิดเห็น + StatusLog | 200 / 400 / 404 |
 | POST | `/api/reports` | ล็อกอิน | แจ้งเรื่อง (multipart + รูป) | 201 / 400 / 401 |
 | PUT | `/api/reports/:id` | ตามสิทธิ์ | แก้ไขเรื่อง | 200 / 400 / 403 / 404 |
-| PATCH | `/api/reports/:id/status` | เจ้าหน้าที่/แอดมิน | เปลี่ยนสถานะ + บันทึก StatusLog | 200 / 400 / 403 / 404 |
+| PATCH | `/api/reports/:id/status` | เจ้าหน้าที่/แอดมิน | เปลี่ยนสถานะ + บันทึก StatusLog (มีคนเปลี่ยนไปก่อนได้ 409) | 200 / 400 / 403 / 404 / 409 |
 | DELETE | `/api/reports/:id` | ตามสิทธิ์ | ลบเรื่อง (ความคิดเห็น/StatusLog/รูปลบตาม) | 200 / 403 / 404 |
 | POST | `/api/reports/:id/comments` | ล็อกอิน | เพิ่มความคิดเห็น | 201 / 400 / 404 |
 | DELETE | `/api/comments/:id` | เจ้าของ/แอดมิน | ลบความคิดเห็น | 200 / 403 / 404 |

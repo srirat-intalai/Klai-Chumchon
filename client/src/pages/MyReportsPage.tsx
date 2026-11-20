@@ -14,7 +14,7 @@ export default function MyReportsPage() {
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold">เรื่องที่ฉันแจ้ง</h1>
-          <p className="text-sm text-base-content/60">แก้ไขหรือลบได้ระหว่างที่ยังรอดำเนินการ</p>
+          <p className="text-sm text-base-content/70">แก้ไขหรือลบได้ระหว่างที่ยังรอดำเนินการ</p>
         </div>
         <Link to="/reports/new" className="btn btn-primary btn-sm">
           + แจ้งปัญหาใหม่

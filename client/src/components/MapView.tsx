@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { Link } from "react-router";
+import { ArrowRight } from "lucide-react";
+import { CategoryLabel } from "./CategoryIcon";
 import { STATUS_LABEL } from "../types";
 import type { Report, ReportStatus } from "../types";
 import { MAP_CENTER, STATUS_COLOR } from "../utils";
@@ -42,15 +44,14 @@ export function ReportsMap({ reports, height = "h-[60vh]" }: ReportsMapProps) {
         <Marker key={r.id} position={[r.latitude, r.longitude]} icon={icons[r.status]}>
           <Popup>
             <div className="space-y-1 min-w-44">
-              <p className="text-xs" style={{ color: STATUS_COLOR[r.status] }}>
-                ● {STATUS_LABEL[r.status]}
+              <p className="text-xs flex items-center gap-1 !m-0">
+                <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: STATUS_COLOR[r.status] }} aria-hidden="true" />
+                {STATUS_LABEL[r.status]}
               </p>
               <p className="font-semibold !m-0">{r.title}</p>
-              <p className="text-xs !m-0">
-                {r.category.icon} {r.category.name}
-              </p>
-              <Link to={`/reports/${r.id}`} className="link link-primary text-sm">
-                ดูรายละเอียด →
+              <CategoryLabel category={r.category} className="text-xs" />
+              <Link to={`/reports/${r.id}`} className="link link-primary text-sm inline-flex items-center gap-1">
+                ดูรายละเอียด <ArrowRight size={14} aria-hidden="true" />
               </Link>
             </div>
           </Popup>

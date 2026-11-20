@@ -17,6 +17,10 @@ export function useMe() {
     user: token ? query.data : undefined,
     // มี token แต่ยังโหลดไม่เสร็จ = ยังไม่รู้ว่าเป็นใคร
     isLoading: token !== null && query.isLoading,
+    // มี token แต่ถาม server ไม่ได้ (server ล่ม/เน็ตหลุด) ไม่ใช่ token หมดอายุ
+    // ถ้า token หมดอายุ (401) reportApi จะ logout ให้ token เป็น null ไปแล้ว
+    connectionError: token !== null && !query.data && query.isError ? query.error.message : null,
+    retry: query.refetch,
   };
 }
 

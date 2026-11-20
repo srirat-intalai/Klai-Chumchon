@@ -1,3 +1,5 @@
+import { Inbox, RefreshCw, TriangleAlert } from "lucide-react";
+
 // โครงกระพริบระหว่างรอข้อมูล + กล่องแจ้ง error
 
 export function CardSkeleton() {
@@ -55,13 +57,14 @@ interface ErrorAlertProps {
 export function ErrorAlert({ message, onRetry }: ErrorAlertProps) {
   return (
     <div role="alert" className="alert alert-error">
-      <span className="text-xl">⚠️</span>
+      <TriangleAlert size={22} aria-hidden="true" className="shrink-0" />
       <div>
         <h3 className="font-semibold">เกิดข้อผิดพลาด</h3>
         <p className="text-sm">{message}</p>
       </div>
       {onRetry && (
         <button className="btn btn-sm" onClick={onRetry}>
+          <RefreshCw size={14} aria-hidden="true" />
           ลองใหม่
         </button>
       )}
@@ -71,8 +74,8 @@ export function ErrorAlert({ message, onRetry }: ErrorAlertProps) {
 
 export function EmptyState({ text }: { text: string }) {
   return (
-    <div className="text-center py-16 text-base-content/60">
-      <div className="text-5xl mb-3">📭</div>
+    <div className="text-center py-16 text-base-content/70">
+      <Inbox size={48} aria-hidden="true" className="mx-auto mb-3 opacity-60" />
       <p>{text}</p>
     </div>
   );

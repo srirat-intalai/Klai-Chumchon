@@ -14,6 +14,12 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     return res.status(400).json({ success: false, message: "รูปแบบ JSON ไม่ถูกต้อง" });
   }
 
+  // error จาก express.json() เช่น body ใหญ่เกิน (413) มี status ติดมาให้แล้ว
+  if (typeof err === "object" && err !== null && "status" in err && typeof err.status === "number" && err.status >= 400 && err.status < 500) {
+    const message = err.status === 413 ? "ข้อมูลที่ส่งมามีขนาดใหญ่เกินไป" : "คำขอไม่ถูกต้อง";
+    return res.status(err.status).json({ success: false, message });
+  }
+
   // error จากการอัปโหลดรูป
   if (err instanceof multer.MulterError) {
     const message = err.code === "LIMIT_FILE_SIZE" ? "รูปต้องมีขนาดไม่เกิน 5MB" : "อัปโหลดได้เฉพาะรูป JPG, PNG หรือ WEBP";

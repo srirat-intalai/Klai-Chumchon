@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import type { Role } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
-import { checkRole, parseId } from "../validators/reportValidator.js";
+import { checkRole, field, parseId } from "../validators/reportValidator.js";
 
 // GET /api/users  (แอดมิน)
 export async function getUsers(_req: Request, res: Response) {
@@ -26,7 +26,7 @@ export async function updateUserRole(req: Request, res: Response) {
   if (!id) {
     return res.status(400).json({ success: false, message: "รหัสผู้ใช้ไม่ถูกต้อง" });
   }
-  const role = checkRole(req.body?.role);
+  const role = checkRole(field(req.body, "role"));
   if (!role) {
     return res.status(400).json({ success: false, message: "role ต้องเป็น CITIZEN, STAFF หรือ ADMIN" });
   }

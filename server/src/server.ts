@@ -14,7 +14,16 @@ app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(express.json({ limit: "100kb" }));
 
 // เปิดให้หน้าบ้านโหลดรูปที่อัปโหลดได้ที่ /uploads/ชื่อไฟล์
-app.use("/uploads", express.static(UPLOAD_DIR, { maxAge: "7d" }));
+// nosniff = ให้ browser เชื่อ Content-Type ตามนามสกุลไฟล์ ไม่เดาเอง (กันไฟล์ปลอมที่แอบเป็น HTML)
+app.use(
+  "/uploads",
+  express.static(UPLOAD_DIR, {
+    maxAge: "7d",
+    setHeaders: function (res) {
+      res.setHeader("X-Content-Type-Options", "nosniff");
+    },
+  })
+);
 
 app.get("/api/health", (_req, res) => {
   res.json({ success: true, message: "Klai Chumchon API ทำงานปกติ", timestamp: new Date().toISOString() });

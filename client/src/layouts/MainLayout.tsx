@@ -1,10 +1,17 @@
 import { useEffect } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { LogOut, MapPinned, Menu, Moon, Plus, Sun } from "lucide-react";
 import { useUiStore } from "../stores/useUiStore";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useMe } from "../hooks/useAuth";
 import { RoleBadge } from "../components/Badges";
+
+// DaisyUI dropdown เปิดอยู่ตราบที่ยังมี focus กดลิงก์แล้วต้อง blur ให้เมนูปิด
+function closeDropdown() {
+  const el = document.activeElement;
+  if (el instanceof HTMLElement) el.blur();
+}
 
 function navClass({ isActive }: { isActive: boolean }) {
   return isActive ? "font-semibold text-primary" : "";
@@ -18,7 +25,7 @@ export default function MainLayout() {
   const hideToast = useUiStore((s) => s.hideToast);
   const showToast = useUiStore((s) => s.showToast);
   const logout = useAuthStore((s) => s.logout);
-  const { user, isLoading } = useMe();
+  const { user, isLoading, connectionError } = useMe();
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -35,6 +42,7 @@ export default function MainLayout() {
   }, [toast, hideToast]);
 
   function handleLogout() {
+    closeDropdown();
     logout();
     qc.removeQueries({ queryKey: ["me"] });
     qc.removeQueries({ queryKey: ["users"] });
@@ -42,62 +50,77 @@ export default function MainLayout() {
     navigate("/");
   }
 
-  // เมนูเปลี่ยนตาม role
+  // เมนูหลักเหลือ 4-5 อัน ("เรื่องของฉัน" อยู่ในเมนู avatar, "เกี่ยวกับเรา" อยู่ที่ footer)
   const menus = [
     { to: "/", label: "หน้าแรก" },
     { to: "/reports", label: "เรื่องที่แจ้ง" },
     { to: "/map", label: "แผนที่" },
     { to: "/bookmarks", label: "ที่ติดตาม" },
   ];
-  if (user) menus.push({ to: "/my-reports", label: "เรื่องของฉัน" });
   if (user && user.role !== "CITIZEN") menus.push({ to: "/admin", label: "จัดการระบบ" });
-  menus.push({ to: "/about", label: "เกี่ยวกับเรา" });
 
-  const links = menus.map((m) => (
-    <li key={m.to}>
-      <NavLink to={m.to} end={m.to === "/"} className={navClass}>
-        {m.label}
-        {m.to === "/bookmarks" && bookmarkCount > 0 && (
-          <span className="badge badge-sm badge-warning">{bookmarkCount}</span>
-        )}
-      </NavLink>
-    </li>
-  ));
+  // เมนูมือถือใส่ครบทุกหน้า เพราะไม่มีที่อื่นให้กด
+  const mobileMenus = [...menus];
+  if (user) mobileMenus.push({ to: "/my-reports", label: "เรื่องของฉัน" });
+  mobileMenus.push({ to: "/about", label: "เกี่ยวกับเรา" });
+
+  function renderLinks(list: { to: string; label: string }[]) {
+    return list.map((m) => (
+      <li key={m.to}>
+        <NavLink to={m.to} end={m.to === "/"} className={navClass} onClick={closeDropdown}>
+          {m.label}
+          {m.to === "/bookmarks" && bookmarkCount > 0 && (
+            <span className="badge badge-sm badge-warning">{bookmarkCount}</span>
+          )}
+        </NavLink>
+      </li>
+    ));
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-base-200">
-      <header className="navbar bg-base-100 border-b border-base-300 sticky top-0 z-[1000] px-2 sm:px-6">
+      <header className="navbar bg-base-100/95 backdrop-blur border-b border-base-300 sticky top-0 z-[1000] px-2 sm:px-6">
         <div className="navbar-start">
-          {/* เมนูมือถือ */}
-          <div className="dropdown xl:hidden">
+          <div className="dropdown lg:hidden">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-square" aria-label="เปิดเมนู">
-              ☰
+              <Menu size={20} aria-hidden="true" />
             </div>
             <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-40 mt-3 w-52 p-2 shadow">
-              {links}
+              {renderLinks(mobileMenus)}
             </ul>
           </div>
-          <Link to="/" className="btn btn-ghost text-base sm:text-xl gap-1 px-1 sm:px-2">
-            <span>🏘️</span>
-            <span className="text-primary font-bold">Klai</span>
-            <span className="font-bold">Chumchon</span>
+          <Link to="/" className="btn btn-ghost text-base sm:text-xl gap-1.5 px-1 sm:px-2">
+            <MapPinned size={22} className="text-primary" aria-hidden="true" />
+            <span>
+              <span className="text-primary font-bold">Klai</span> <span className="font-bold">Chumchon</span>
+            </span>
           </Link>
         </div>
 
-        <nav className="navbar-center hidden xl:flex">
-          <ul className="menu menu-horizontal px-1 gap-1">{links}</ul>
+        <nav className="navbar-center hidden lg:flex" aria-label="เมนูหลัก">
+          <ul className="menu menu-horizontal px-1 gap-1">{renderLinks(menus)}</ul>
         </nav>
 
         <div className="navbar-end gap-1 sm:gap-2">
-          <button className="btn btn-ghost btn-circle btn-sm sm:btn-md" onClick={toggleTheme} aria-label="สลับธีม">
-            {theme === "emerald" ? "🌙" : "☀️"}
+          <button
+            className="btn btn-ghost btn-circle btn-sm sm:btn-md"
+            onClick={toggleTheme}
+            aria-label={theme === "emerald" ? "เปลี่ยนเป็นโหมดมืด" : "เปลี่ยนเป็นโหมดสว่าง"}
+          >
+            {theme === "emerald" ? <Moon size={18} aria-hidden="true" /> : <Sun size={18} aria-hidden="true" />}
           </button>
           <Link to="/reports/new" className="btn btn-primary btn-sm sm:btn-md" aria-label="แจ้งปัญหา">
-            +<span className="hidden sm:inline"> แจ้งปัญหา</span>
+            <Plus size={18} aria-hidden="true" />
+            <span className="hidden sm:inline">แจ้งปัญหา</span>
           </Link>
 
           {isLoading && <span className="loading loading-spinner loading-sm" />}
-          {!isLoading && !user && (
+          {connectionError && (
+            <span className="badge badge-error badge-outline whitespace-nowrap" title={connectionError}>
+              ออฟไลน์
+            </span>
+          )}
+          {!isLoading && !user && !connectionError && (
             <Link to="/login" className="btn btn-ghost btn-sm sm:btn-md">
               เข้าสู่ระบบ
             </Link>
@@ -118,10 +141,13 @@ export default function MainLayout() {
                   </span>
                 </li>
                 <li>
-                  <Link to="/my-reports">เรื่องของฉัน</Link>
+                  <Link to="/my-reports" onClick={closeDropdown}>
+                    เรื่องของฉัน
+                  </Link>
                 </li>
                 <li>
                   <button onClick={handleLogout} className="text-error">
+                    <LogOut size={15} aria-hidden="true" />
                     ออกจากระบบ
                   </button>
                 </li>
@@ -135,12 +161,33 @@ export default function MainLayout() {
         <Outlet />
       </main>
 
-      <footer className="footer footer-center p-6 bg-base-100 border-t border-base-300 text-sm text-base-content/60">
-        <p>Klai Chumchon · ระบบแจ้งปัญหาและติดตามการแก้ไขในชุมชน · CS319 Final Project</p>
+      <footer className="bg-neutral text-neutral-content mt-8">
+        <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm">
+          <div className="space-y-2">
+            <p className="flex items-center gap-2 text-lg font-bold">
+              <MapPinned size={20} aria-hidden="true" /> Klai Chumchon
+            </p>
+            <p className="opacity-80">แจ้งปัญหาใกล้ตัว ติดตามได้ว่าเรื่องของชุมชนไปถึงไหนแล้ว</p>
+          </div>
+          <nav aria-label="ลิงก์ส่วนท้าย">
+            <p className="font-semibold mb-2">เมนู</p>
+            <ul className="space-y-1 opacity-80">
+              <li><Link to="/reports" className="link link-hover">เรื่องที่แจ้งทั้งหมด</Link></li>
+              <li><Link to="/map" className="link link-hover">แผนที่ปัญหา</Link></li>
+              <li><Link to="/reports/new" className="link link-hover">แจ้งปัญหาใหม่</Link></li>
+              <li><Link to="/about" className="link link-hover">เกี่ยวกับเรา</Link></li>
+            </ul>
+          </nav>
+          <div>
+            <p className="font-semibold mb-2">โครงงาน</p>
+            <p className="opacity-80">CS319 Internet Programming I · Final Project</p>
+            <p className="opacity-80 mt-1">ข้อมูลในระบบเป็นข้อมูลตัวอย่างสำหรับการเรียน</p>
+          </div>
+        </div>
       </footer>
 
       {toast && (
-        <div className="toast toast-end toast-bottom z-[1100]">
+        <div className="toast toast-end toast-bottom z-[1100]" role="status" aria-live="polite">
           <div className={`alert ${toast.type === "success" ? "alert-success" : "alert-error"}`}>
             <span>{toast.text}</span>
           </div>

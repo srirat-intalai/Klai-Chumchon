@@ -10,6 +10,17 @@ function toRecord(body: unknown): Record<string, unknown> {
   return {};
 }
 
+// ดึงค่าจาก req.body แบบปลอดภัย (Express ไม่ได้กำหนดชนิดของ req.body เลยไม่แตะตรง ๆ)
+export function field(body: unknown, key: string): unknown {
+  return toRecord(body)[key];
+}
+
+// ช่องว่าง/ไม่ส่งมา ต้องถือว่า "ไม่มีค่า" เพราะ Number("") ได้ 0 ซึ่งดันเป็นพิกัดที่ถูกต้อง
+function readNumber(value: unknown): number {
+  if (value === undefined || value === null || value === "") return NaN;
+  return Number(value);
+}
+
 function readText(value: unknown): string {
   if (typeof value !== "string") return "";
   return value.trim();
@@ -23,9 +34,9 @@ export function checkReport(body: unknown): { errors: string[]; data: ReportInpu
   const description = readText(raw.description);
   const location = readText(raw.location);
   const priority = readText(raw.priority) || "MEDIUM";
-  const categoryId = Number(raw.categoryId);
-  const latitude = Number(raw.latitude);
-  const longitude = Number(raw.longitude);
+  const categoryId = parseId(raw.categoryId);
+  const latitude = readNumber(raw.latitude);
+  const longitude = readNumber(raw.longitude);
 
   if (title.length < 5 || title.length > 120) {
     errors.push("หัวข้อต้องยาว 5-120 ตัวอักษร");
@@ -36,16 +47,15 @@ export function checkReport(body: unknown): { errors: string[]; data: ReportInpu
   if (location.length < 3 || location.length > 200) {
     errors.push("กรุณาระบุจุดสังเกต (3-200 ตัวอักษร)");
   }
-  // raw.latitude === "" แปลว่าไม่ได้ปักหมุด (Number("") จะได้ 0 เลยต้องเช็กแยก)
-  if (raw.latitude === undefined || raw.latitude === "" || !Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
     errors.push("กรุณาปักหมุดตำแหน่งบนแผนที่");
-  } else if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
-    errors.push("พิกัดลองจิจูดไม่ถูกต้อง");
+  } else if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+    errors.push("พิกัดไม่ถูกต้อง");
   }
   if (!PRIORITIES.includes(priority)) {
     errors.push("ระดับความเร่งด่วนไม่ถูกต้อง");
   }
-  if (!Number.isInteger(categoryId) || categoryId <= 0) {
+  if (categoryId === null) {
     errors.push("กรุณาเลือกหมวดหมู่");
   }
 
@@ -58,7 +68,7 @@ export function checkReport(body: unknown): { errors: string[]; data: ReportInpu
       latitude,
       longitude,
       priority: priority as ReportInput["priority"],
-      categoryId,
+      categoryId: categoryId ?? 0,
     },
   };
 }
@@ -115,9 +125,13 @@ export function checkLogin(body: unknown): { error: string | null; data: LoginIn
   return { error: null, data: { email, password } };
 }
 
-// แปลง :id จาก url เป็นเลข ถ้าไม่ใช่เลขบวกคืน null
+// คอลัมน์ id ใน PostgreSQL เป็น INT 32 บิต เกินนี้ Prisma จะ error เป็น 500
+const MAX_INT = 2147483647;
+
+// แปลง :id จาก url เป็นเลข ถ้าไม่ใช่เลขบวกในช่วง INT คืน null
 export function parseId(value: unknown): number | null {
+  if (typeof value !== "string" && typeof value !== "number") return null;
   const id = Number(value);
-  if (!Number.isInteger(id) || id <= 0) return null;
+  if (!Number.isInteger(id) || id <= 0 || id > MAX_INT) return null;
   return id;
 }

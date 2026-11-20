@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma.js";
 import { signToken } from "../middlewares/auth.js";
 import { checkLogin, checkRegister } from "../validators/reportValidator.js";
+import { clearFails, minutesLocked, recordFail } from "../middlewares/loginLimiter.js";
 
 // ห้ามส่ง passwordHash กลับไปหน้าบ้านเด็ดขาด
 const publicUser = { id: true, name: true, email: true, phone: true, role: true, createdAt: true } as const;
@@ -35,11 +36,23 @@ export async function login(req: Request, res: Response) {
     return res.status(400).json({ success: false, message: result.error });
   }
 
-  const found = await prisma.user.findUnique({ where: { email: result.data.email } });
+  const ip = req.ip || "unknown";
+  const email = result.data.email;
+
+  // ผิดเกิน 5 ครั้งใน 15 นาที ให้รอก่อน กันการสุ่มเดารหัสผ่าน
+  const wait = minutesLocked(ip, email);
+  if (wait > 0) {
+    return res.status(429).json({ success: false, message: `ลองผิดหลายครั้งเกินไป กรุณารออีก ${wait} นาที` });
+  }
+
+  const found = await prisma.user.findUnique({ where: { email } });
   // ตอบข้อความเดียวกันทั้งกรณีไม่มีอีเมล/รหัสผิด จะได้เดาไม่ได้ว่าอีเมลไหนมีในระบบ
   if (!found || !(await bcrypt.compare(result.data.password, found.passwordHash))) {
+    recordFail(ip, email);
     return res.status(401).json({ success: false, message: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" });
   }
+
+  clearFails(ip, email);
 
   const user = { id: found.id, name: found.name, email: found.email, phone: found.phone, role: found.role, createdAt: found.createdAt };
   res.json({ success: true, message: "เข้าสู่ระบบแล้ว", data: { token: signToken(found.id), user } });
