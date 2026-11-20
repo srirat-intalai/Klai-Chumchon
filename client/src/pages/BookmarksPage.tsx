@@ -1,0 +1,41 @@
+import { Link } from "react-router";
+import { useReports } from "../hooks/useReports";
+import { useUiStore } from "../stores/useUiStore";
+import ReportCard from "../components/ReportCard";
+import { EmptyState, ErrorAlert, GridSkeleton } from "../components/Feedback";
+
+const noFilter = { search: "", status: "" as const, categoryId: 0 };
+
+export default function BookmarksPage() {
+  const bookmarks = useUiStore((s) => s.bookmarks);
+  // Zustand มีแค่ id ส่วนข้อมูลเต็มดึงจาก cache ของ TanStack Query
+  const reports = useReports(noFilter);
+  const saved = (reports.data || []).filter((r) => bookmarks.includes(r.id));
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-bold">เรื่องที่ติดตาม</h1>
+        <p className="text-base-content/60 text-sm">บันทึกไว้ในเครื่องนี้ (LocalStorage) ไม่ต้องสมัครสมาชิก</p>
+      </div>
+
+      {reports.isLoading && <GridSkeleton count={3} />}
+      {reports.isError && <ErrorAlert message={reports.error.message} onRetry={() => reports.refetch()} />}
+      {reports.data && saved.length === 0 && (
+        <div className="text-center">
+          <EmptyState text="ยังไม่ได้ติดตามเรื่องไหน กด ☆ ที่การ์ดเพื่อติดตาม" />
+          <Link to="/reports" className="btn btn-primary btn-sm">
+            ไปดูเรื่องที่แจ้ง
+          </Link>
+        </div>
+      )}
+      {saved.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {saved.map((r) => (
+            <ReportCard key={r.id} report={r} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

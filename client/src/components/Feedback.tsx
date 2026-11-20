@@ -1,0 +1,79 @@
+// โครงกระพริบระหว่างรอข้อมูล + กล่องแจ้ง error
+
+export function CardSkeleton() {
+  return (
+    <div className="card bg-base-100 border border-base-300 p-5 space-y-3">
+      <div className="flex justify-between">
+        <div className="skeleton h-5 w-24" />
+        <div className="skeleton h-5 w-20" />
+      </div>
+      <div className="skeleton h-6 w-3/4" />
+      <div className="skeleton h-4 w-full" />
+      <div className="skeleton h-4 w-2/3" />
+      <div className="flex justify-between pt-2">
+        <div className="skeleton h-4 w-28" />
+        <div className="skeleton h-8 w-20" />
+      </div>
+    </div>
+  );
+}
+
+export function GridSkeleton({ count = 6 }: { count?: number }) {
+  const items = [];
+  for (let i = 0; i < count; i++) {
+    items.push(<CardSkeleton key={i} />);
+  }
+  return <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{items}</div>;
+}
+
+export function DetailSkeleton() {
+  return (
+    <div className="card bg-base-100 border border-base-300 p-6 space-y-4">
+      <div className="skeleton h-5 w-32" />
+      <div className="skeleton h-9 w-3/4" />
+      <div className="skeleton h-56 w-full" />
+      <div className="skeleton h-4 w-full" />
+      <div className="skeleton h-4 w-5/6" />
+      <div className="skeleton h-4 w-1/2" />
+    </div>
+  );
+}
+
+export function TableSkeleton() {
+  const rows = [];
+  for (let i = 0; i < 6; i++) {
+    rows.push(<div key={i} className="skeleton h-12 w-full" />);
+  }
+  return <div className="space-y-2">{rows}</div>;
+}
+
+interface ErrorAlertProps {
+  message: string;
+  onRetry?: () => void;
+}
+
+export function ErrorAlert({ message, onRetry }: ErrorAlertProps) {
+  return (
+    <div role="alert" className="alert alert-error">
+      <span className="text-xl">⚠️</span>
+      <div>
+        <h3 className="font-semibold">เกิดข้อผิดพลาด</h3>
+        <p className="text-sm">{message}</p>
+      </div>
+      {onRetry && (
+        <button className="btn btn-sm" onClick={onRetry}>
+          ลองใหม่
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function EmptyState({ text }: { text: string }) {
+  return (
+    <div className="text-center py-16 text-base-content/60">
+      <div className="text-5xl mb-3">📭</div>
+      <p>{text}</p>
+    </div>
+  );
+}

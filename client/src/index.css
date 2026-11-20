@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: emerald --default, dim;
+}
+
+@layer base {
+  body {
+    font-family: 'Prompt', system-ui, sans-serif;
+  }
+}
