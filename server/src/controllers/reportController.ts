@@ -1,13 +1,35 @@
 import type { Request, Response } from "express";
+import fs from "node:fs/promises";
+import path from "node:path";
 import { Prisma } from "@prisma/client";
+import type { ReportStatus } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
-import { checkReport, checkStatus, parseId } from "../validators/reportValidator.js";
+import { UPLOAD_DIR } from "../middlewares/upload.js";
+import { checkNote, checkReport, checkStatus, parseId } from "../validators/reportValidator.js";
 
-// GET /api/reports?search=&status=&categoryId=
+const userBrief = { select: { id: true, name: true, role: true } } as const;
+
+// ลบไฟล์รูปเก่า ถ้าลบไม่ได้ก็ช่างมัน ไม่ต้องให้ request พัง
+async function removeImage(imageUrl: string | null | undefined) {
+  if (!imageUrl || !imageUrl.startsWith("/uploads/")) return;
+  try {
+    await fs.unlink(path.join(UPLOAD_DIR, path.basename(imageUrl)));
+  } catch {
+    // ไฟล์อาจถูกลบไปแล้ว
+  }
+}
+
+// ประชาชนแก้/ลบได้เฉพาะเรื่องของตัวเองที่ยังรอดำเนินการ เจ้าหน้าที่ลงมือแล้วห้ามแก้
+function canCitizenChange(req: Request, report: { reporterId: number; status: ReportStatus }) {
+  return report.reporterId === req.user!.id && report.status === "PENDING";
+}
+
+// GET /api/reports?search=&status=&categoryId=&reporterId=
 export async function getReports(req: Request, res: Response) {
   const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
   const status = checkStatus(req.query.status);
   const categoryId = parseId(req.query.categoryId);
+  const reporterId = parseId(req.query.reporterId);
 
   const where: Prisma.ReportWhereInput = {};
   if (search !== "") {
@@ -17,13 +39,15 @@ export async function getReports(req: Request, res: Response) {
       { location: { contains: search, mode: "insensitive" } },
     ];
   }
-  if (status) where.status = status as Prisma.ReportWhereInput["status"];
+  if (status) where.status = status as ReportStatus;
   if (categoryId) where.categoryId = categoryId;
+  if (reporterId) where.reporterId = reporterId;
 
   const reports = await prisma.report.findMany({
     where,
     include: {
       category: true,
+      reporter: userBrief,
       _count: { select: { comments: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -43,7 +67,9 @@ export async function getReportById(req: Request, res: Response) {
     where: { id },
     include: {
       category: true,
-      comments: { orderBy: { createdAt: "asc" } },
+      reporter: userBrief,
+      comments: { include: { author: userBrief }, orderBy: { createdAt: "asc" } },
+      statusLogs: { include: { changedBy: userBrief }, orderBy: { createdAt: "asc" } },
     },
   });
 
@@ -53,56 +79,83 @@ export async function getReportById(req: Request, res: Response) {
   res.json({ success: true, data: report });
 }
 
-// POST /api/reports
+// POST /api/reports  (multipart/form-data มีรูปหรือไม่มีก็ได้)
 export async function createReport(req: Request, res: Response) {
+  const newImage = req.file ? "/uploads/" + req.file.filename : null;
+
   const result = checkReport(req.body);
   if (result.errors.length > 0) {
+    await removeImage(newImage);
     return res.status(400).json({ success: false, message: result.errors[0], errors: result.errors });
   }
 
   const category = await prisma.category.findUnique({ where: { id: result.data.categoryId } });
   if (!category) {
+    await removeImage(newImage);
     return res.status(400).json({ success: false, message: "ไม่พบหมวดหมู่ที่เลือก" });
   }
 
+  // สร้างเรื่องพร้อม log แรกในคำสั่งเดียว (nested create = transaction เดียวกัน)
   const report = await prisma.report.create({
-    data: result.data,
-    include: { category: true },
+    data: {
+      ...result.data,
+      imageUrl: newImage,
+      reporterId: req.user!.id,
+      statusLogs: { create: { toStatus: "PENDING", note: "แจ้งเรื่องเข้าระบบ", changedById: req.user!.id } },
+    },
+    include: { category: true, reporter: userBrief },
   });
   res.status(201).json({ success: true, message: "แจ้งเรื่องเรียบร้อย", data: report });
 }
 
-// PUT /api/reports/:id  (แก้ทั้งก้อน)
+// PUT /api/reports/:id  (เจ้าของตอนยังรอดำเนินการ หรือเจ้าหน้าที่/แอดมิน)
 export async function updateReport(req: Request, res: Response) {
+  const newImage = req.file ? "/uploads/" + req.file.filename : null;
+
   const id = parseId(req.params.id);
   if (!id) {
+    await removeImage(newImage);
     return res.status(400).json({ success: false, message: "รหัสเรื่องไม่ถูกต้อง" });
-  }
-
-  const result = checkReport(req.body);
-  if (result.errors.length > 0) {
-    return res.status(400).json({ success: false, message: result.errors[0], errors: result.errors });
   }
 
   const old = await prisma.report.findUnique({ where: { id } });
   if (!old) {
+    await removeImage(newImage);
     return res.status(404).json({ success: false, message: `ไม่พบเรื่องที่แจ้งรหัส ${id}` });
+  }
+  if (req.user!.role === "CITIZEN" && !canCitizenChange(req, old)) {
+    await removeImage(newImage);
+    return res.status(403).json({ success: false, message: "แก้ไขได้เฉพาะเรื่องของคุณที่ยังรอดำเนินการ" });
+  }
+
+  const result = checkReport(req.body);
+  if (result.errors.length > 0) {
+    await removeImage(newImage);
+    return res.status(400).json({ success: false, message: result.errors[0], errors: result.errors });
   }
 
   const category = await prisma.category.findUnique({ where: { id: result.data.categoryId } });
   if (!category) {
+    await removeImage(newImage);
     return res.status(400).json({ success: false, message: "ไม่พบหมวดหมู่ที่เลือก" });
   }
 
+  // มีรูปใหม่ = แทนรูปเดิม, ส่ง removeImage=true = ลบรูปทิ้ง, ไม่ส่งอะไร = ใช้รูปเดิม
+  let imageUrl = old.imageUrl;
+  if (newImage) imageUrl = newImage;
+  else if (req.body?.removeImage === "true") imageUrl = null;
+
   const report = await prisma.report.update({
     where: { id },
-    data: result.data,
-    include: { category: true },
+    data: { ...result.data, imageUrl },
+    include: { category: true, reporter: userBrief },
   });
+
+  if (imageUrl !== old.imageUrl) await removeImage(old.imageUrl);
   res.json({ success: true, message: "บันทึกการแก้ไขแล้ว", data: report });
 }
 
-// PATCH /api/reports/:id/status  (เจ้าหน้าที่เปลี่ยนสถานะอย่างเดียว)
+// PATCH /api/reports/:id/status  (เจ้าหน้าที่/แอดมิน) เปลี่ยนสถานะ + เก็บ StatusLog
 export async function updateReportStatus(req: Request, res: Response) {
   const id = parseId(req.params.id);
   if (!id) {
@@ -113,21 +166,40 @@ export async function updateReportStatus(req: Request, res: Response) {
   if (!status) {
     return res.status(400).json({ success: false, message: "สถานะต้องเป็น PENDING, IN_PROGRESS หรือ RESOLVED" });
   }
+  const noteCheck = checkNote(req.body?.note);
+  if (noteCheck.error) {
+    return res.status(400).json({ success: false, message: noteCheck.error });
+  }
 
   const old = await prisma.report.findUnique({ where: { id } });
   if (!old) {
     return res.status(404).json({ success: false, message: `ไม่พบเรื่องที่แจ้งรหัส ${id}` });
   }
+  if (old.status === status) {
+    return res.status(400).json({ success: false, message: "เรื่องนี้อยู่ในสถานะนี้อยู่แล้ว" });
+  }
 
-  const report = await prisma.report.update({
-    where: { id },
-    data: { status: status as Prisma.ReportUpdateInput["status"] },
-    include: { category: true },
-  });
+  // อัปเดตสถานะกับเขียน log ต้องสำเร็จพร้อมกัน
+  const [report] = await prisma.$transaction([
+    prisma.report.update({
+      where: { id },
+      data: { status: status as ReportStatus },
+      include: { category: true, reporter: userBrief },
+    }),
+    prisma.statusLog.create({
+      data: {
+        reportId: id,
+        fromStatus: old.status,
+        toStatus: status as ReportStatus,
+        note: noteCheck.note,
+        changedById: req.user!.id,
+      },
+    }),
+  ]);
   res.json({ success: true, message: "อัปเดตสถานะแล้ว", data: report });
 }
 
-// DELETE /api/reports/:id
+// DELETE /api/reports/:id  (แอดมิน หรือเจ้าของตอนยังรอดำเนินการ)
 export async function deleteReport(req: Request, res: Response) {
   const id = parseId(req.params.id);
   if (!id) {
@@ -138,8 +210,12 @@ export async function deleteReport(req: Request, res: Response) {
   if (!old) {
     return res.status(404).json({ success: false, message: `ไม่พบเรื่องที่แจ้งรหัส ${id}` });
   }
+  if (req.user!.role !== "ADMIN" && !canCitizenChange(req, old)) {
+    return res.status(403).json({ success: false, message: "ลบได้เฉพาะแอดมิน หรือเจ้าของเรื่องที่ยังรอดำเนินการ" });
+  }
 
-  // คอมเมนต์ถูกลบตาม (onDelete: Cascade)
+  // คอมเมนต์และ StatusLog ถูกลบตาม (onDelete: Cascade)
   await prisma.report.delete({ where: { id } });
+  await removeImage(old.imageUrl);
   res.json({ success: true, message: `ลบเรื่อง "${old.title}" แล้ว` });
 }

@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router";
 import { useReport, useUpdateReport } from "../hooks/useReports";
+import { useMe } from "../hooks/useAuth";
 import { useUiStore } from "../stores/useUiStore";
 import ReportForm from "../components/ReportForm";
 import { DetailSkeleton, ErrorAlert } from "../components/Feedback";
@@ -11,6 +12,7 @@ export default function EditReportPage() {
   const navigate = useNavigate();
   const report = useReport(id);
   const updateReport = useUpdateReport(id);
+  const { user } = useMe();
   const showToast = useUiStore((s) => s.showToast);
 
   if (!Number.isInteger(id) || id <= 0) return <ErrorAlert message="รหัสเรื่องไม่ถูกต้อง" />;
@@ -20,17 +22,31 @@ export default function EditReportPage() {
   }
 
   const r = report.data;
-  // แปลงข้อมูลจาก server ให้เป็นค่าเริ่มต้นของฟอร์ม (null -> "")
+
+  // กฎเดียวกับหลังบ้าน: ประชาชนแก้ได้เฉพาะเรื่องตัวเองที่ยังรอดำเนินการ
+  const allowed =
+    user && (user.role !== "CITIZEN" || (r.reporterId === user.id && r.status === "PENDING"));
+  if (!allowed) {
+    return (
+      <div className="space-y-4 max-w-xl mx-auto">
+        <ErrorAlert message="แก้ไขได้เฉพาะเรื่องของคุณที่ยังรอดำเนินการ" />
+        <Link to={`/reports/${r.id}`} className="btn btn-ghost btn-sm">
+          ← กลับไปหน้ารายละเอียด
+        </Link>
+      </div>
+    );
+  }
+
   const initial: ReportFormData = {
     title: r.title,
     description: r.description,
     location: r.location,
-    reporterName: r.reporterName,
-    phone: r.phone || "",
-    imageUrl: r.imageUrl || "",
+    latitude: r.latitude,
+    longitude: r.longitude,
     priority: r.priority,
-    status: r.status,
     categoryId: r.categoryId,
+    image: null,
+    removeImage: false,
   };
 
   function handleSubmit(data: ReportFormData) {
@@ -54,7 +70,7 @@ export default function EditReportPage() {
       <ReportForm
         key={r.id}
         initial={initial}
-        showStatus
+        oldImageUrl={r.imageUrl}
         submitText="บันทึกการแก้ไข"
         pending={updateReport.isPending}
         serverError={updateReport.isError ? updateReport.error.message : null}

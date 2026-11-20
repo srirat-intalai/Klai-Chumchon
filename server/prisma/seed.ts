@@ -1,11 +1,27 @@
-// ข้อมูลตัวอย่างสำหรับทดสอบระบบ (ชื่อคน/สถานที่สมมติทั้งหมด)
+// ข้อมูลตัวอย่างสำหรับทดสอบระบบ (ชื่อคน/จุดสังเกตเป็นข้อมูลสมมติ พิกัดกระจายรอบ ม.กรุงเทพ วิทยาเขตรังสิต)
 import "dotenv/config";
 import { Pool } from "pg";
+import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, Priority, ReportStatus } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import type { Priority, ReportStatus, Role } from "@prisma/client";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+
+// รหัสผ่านเดียวกันทุกบัญชี ไว้ใช้ตอนสาธิต
+const DEMO_PASSWORD = "demo1234";
+
+const users: { name: string; email: string; role: Role; phone: string | null }[] = [
+  { name: "ผู้ดูแลระบบ", email: "admin@klai.local", role: "ADMIN", phone: null },
+  { name: "เจ้าหน้าที่ สมศักดิ์", email: "staff1@klai.local", role: "STAFF", phone: "0811111111" },
+  { name: "เจ้าหน้าที่ วันดี", email: "staff2@klai.local", role: "STAFF", phone: "0822222222" },
+  { name: "สมชาย ใจดี", email: "somchai@klai.local", role: "CITIZEN", phone: "0833333333" },
+  { name: "สมหญิง รักถิ่น", email: "somying@klai.local", role: "CITIZEN", phone: null },
+  { name: "ประยูร มีสุข", email: "prayoon@klai.local", role: "CITIZEN", phone: "0844444444" },
+  { name: "มาลี ศรีชุมชน", email: "malee@klai.local", role: "CITIZEN", phone: null },
+  { name: "วิชัย ทองดี", email: "wichai@klai.local", role: "CITIZEN", phone: "0855555555" },
+];
 
 const categories = [
   { name: "ถนนและทางเท้า", icon: "🛣️" },
@@ -16,7 +32,11 @@ const categories = [
   { name: "สวนและพื้นที่สาธารณะ", icon: "🌳" },
 ];
 
-// [หัวข้อ, รายละเอียด, สถานที่, ลำดับหมวด(0-5), ความเร่งด่วน]
+// จุดกลาง: สนามกีฬา ม.กรุงเทพ วิทยาเขตรังสิต (ประมาณ)
+const CENTER_LAT = 14.0387;
+const CENTER_LNG = 100.6023;
+
+// [หัวข้อ, รายละเอียด, จุดสังเกต, ลำดับหมวด(0-5), ความเร่งด่วน]
 type Row = [string, string, string, number, Priority];
 
 const rows: Row[] = [
@@ -67,22 +87,37 @@ const rows: Row[] = [
   ["ขอปลูกต้นไม้ริมถนนเพิ่ม", "ถนนร้อนมาก อยากให้มีต้นไม้ให้ร่มเงาบนทางเท้า", "ถนนสายหลักหน้าตลาด", 5, "LOW"],
 ];
 
-const names = ["สมชาย ใจดี", "สมหญิง รักถิ่น", "ประยูร มีสุข", "มาลี ศรีชุมชน", "วิชัย ทองดี", "อรทัย บุญมา", "ลุงแดง", "ป้าเล็ก"];
-const statuses: ReportStatus[] = ["PENDING", "IN_PROGRESS", "RESOLVED"];
-
 const commentTexts = [
   "เจอเหมือนกันครับ ฝากเร่งด้วย",
-  "เจ้าหน้าที่รับเรื่องแล้ว จะลงพื้นที่ตรวจสอบภายในสัปดาห์นี้",
-  "ขอบคุณที่แจ้งนะคะ",
-  "ตอนนี้ยังเป็นอยู่เลย",
+  "ตอนนี้ยังเป็นอยู่เลยค่ะ",
+  "ขอบคุณที่แจ้งนะครับ ผ่านทุกวันเหมือนกัน",
+  "เมื่อวานผ่านไปดู อาการหนักขึ้นกว่าเดิม",
 ];
+
+// สุ่มแบบกำหนดได้ (รัน seed กี่รอบก็ได้พิกัดเดิม)
+function pseudo(n: number): number {
+  const x = Math.sin(n * 9301 + 49297) * 233280;
+  return x - Math.floor(x);
+}
 
 async function main() {
   console.log("ล้างข้อมูลเก่า...");
   // ลบลูกก่อนแม่ ไม่งั้นติด foreign key
   await prisma.comment.deleteMany();
+  await prisma.statusLog.deleteMany();
   await prisma.report.deleteMany();
   await prisma.category.deleteMany();
+  await prisma.user.deleteMany();
+
+  console.log("สร้างผู้ใช้...");
+  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+  const userIds: number[] = [];
+  for (const u of users) {
+    const created = await prisma.user.create({ data: { ...u, passwordHash } });
+    userIds.push(created.id);
+  }
+  const staffIds = [userIds[1]!, userIds[2]!];
+  const citizenIds = userIds.slice(3);
 
   console.log("สร้างหมวดหมู่...");
   const catIds: number[] = [];
@@ -92,40 +127,95 @@ async function main() {
   }
 
   console.log(`สร้างเรื่องแจ้ง ${rows.length} รายการ...`);
+  const statuses: ReportStatus[] = ["PENDING", "IN_PROGRESS", "RESOLVED"];
+  let logCount = 0;
   let commentCount = 0;
+
   for (let i = 0; i < rows.length; i++) {
     const [title, description, location, catIndex, priority] = rows[i]!;
+    const status = statuses[i % 3]!;
+    const reporterId = citizenIds[i % citizenIds.length]!;
+    const staffId = staffIds[i % 2]!;
+
     // ไล่วันย้อนหลังให้ดูเหมือนแจ้งคนละวัน
-    const createdAt = new Date(Date.now() - i * 9 * 60 * 60 * 1000);
+    const createdAt = new Date(Date.now() - (i + 1) * 9 * 60 * 60 * 1000);
+    const hour = 60 * 60 * 1000;
+
+    // กระจายหมุดในรัศมีราว 2 กม. (0.018 องศา ≈ 2 กม.)
+    const angle = pseudo(i + 1) * Math.PI * 2;
+    const dist = 0.003 + pseudo(i + 101) * 0.015;
+    const latitude = Number((CENTER_LAT + Math.sin(angle) * dist).toFixed(6));
+    const longitude = Number((CENTER_LNG + Math.cos(angle) * dist).toFixed(6));
+
+    // ประวัติสถานะตามลำดับจริง: แจ้ง -> กำลังแก้ -> เสร็จ
+    const logs: { fromStatus: ReportStatus | null; toStatus: ReportStatus; note: string; changedById: number; createdAt: Date }[] = [
+      { fromStatus: null, toStatus: "PENDING", note: "แจ้งเรื่องเข้าระบบ", changedById: reporterId, createdAt },
+    ];
+    if (status !== "PENDING") {
+      logs.push({
+        fromStatus: "PENDING",
+        toStatus: "IN_PROGRESS",
+        note: "รับเรื่องแล้ว ส่งทีมลงพื้นที่ตรวจสอบ",
+        changedById: staffId,
+        createdAt: new Date(createdAt.getTime() + 2 * hour),
+      });
+    }
+    if (status === "RESOLVED") {
+      logs.push({
+        fromStatus: "IN_PROGRESS",
+        toStatus: "RESOLVED",
+        note: "ดำเนินการแก้ไขเรียบร้อย",
+        changedById: staffId,
+        createdAt: new Date(createdAt.getTime() + 6 * hour),
+      });
+    }
 
     const report = await prisma.report.create({
       data: {
         title,
         description,
         location,
+        latitude,
+        longitude,
         priority,
-        status: statuses[i % 3]!,
-        reporterName: names[i % names.length]!,
-        phone: i % 2 === 0 ? "08" + String(10000000 + i * 1234567).slice(0, 8) : null,
+        status,
+        reporterId,
         categoryId: catIds[catIndex]!,
         createdAt,
+        statusLogs: { create: logs },
       },
     });
+    logCount += logs.length;
 
-    // ใส่คอมเมนต์ให้บางเรื่อง
+    // ใส่คอมเมนต์ให้บางเรื่อง ทั้งจากประชาชนและเจ้าหน้าที่
     if (i % 3 !== 2) {
       await prisma.comment.create({
         data: {
           reportId: report.id,
-          authorName: names[(i + 3) % names.length]!,
+          authorId: citizenIds[(i + 2) % citizenIds.length]!,
           message: commentTexts[i % commentTexts.length]!,
+          createdAt: new Date(createdAt.getTime() + hour),
+        },
+      });
+      commentCount++;
+    }
+    if (status !== "PENDING" && i % 2 === 0) {
+      await prisma.comment.create({
+        data: {
+          reportId: report.id,
+          authorId: staffId,
+          message: "เจ้าหน้าที่รับทราบและกำลังติดตามให้ครับ",
+          createdAt: new Date(createdAt.getTime() + 3 * hour),
         },
       });
       commentCount++;
     }
   }
 
-  console.log(`เสร็จ: ${categories.length} หมวด, ${rows.length} เรื่อง, ${commentCount} ความคิดเห็น`);
+  console.log(
+    `เสร็จ: ${users.length} ผู้ใช้, ${categories.length} หมวด, ${rows.length} เรื่อง, ${logCount} ประวัติสถานะ, ${commentCount} ความคิดเห็น`
+  );
+  console.log(`บัญชีสาธิตทุกบัญชีใช้รหัสผ่าน: ${DEMO_PASSWORD}`);
 }
 
 main()

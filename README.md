@@ -1,89 +1,141 @@
 # Klai Chumchon (ใกล้ชุมชน)
 
-เว็บแอปให้คนในชุมชนแจ้งปัญหาใกล้ตัว เช่น ถนนชำรุด ไฟส่องทางดับ น้ำท่วม หรือขยะล้น แล้วติดตามได้ว่าเจ้าหน้าที่รับเรื่องและแก้ไขถึงขั้นไหนแล้ว
+แพลตฟอร์มแจ้งปัญหาในชุมชน (Community Issue Reporter) ประชาชนแจ้งปัญหา เช่น ถนนชำรุด ไฟดับ น้ำท่วม พร้อมรูปและพิกัดบนแผนที่ แล้วเจ้าหน้าที่อัปเดตสถานะ **รอดำเนินการ → กำลังแก้ไข → เสร็จสิ้น** โดยระบบเก็บประวัติการเปลี่ยนสถานะทุกครั้ง
 
 CS319 Internet Programming I · Final Project · สถาปัตยกรรม Modern Decoupled SPA
+
+## สมาชิก
+
+| ชื่อ | รหัสนักศึกษา | ส่วนที่รับผิดชอบ |
+|---|---|---|
+| ชินวัตร อ่วมแก้ว | 1660701283 | Database: `schema.prisma`, migration, `seed.ts`, Prisma Studio |
+| ศรีรัตน์ อินทลัย | 1660705185 | UI: `router.tsx`, MainLayout, pages, components, DaisyUI และ responsive |
+| นิชาภา ศรีแจ่มใส | 1660706050 | State: Zustand stores, TanStack Query hooks, `reportApi.ts` |
+| บุญพิทักษ์ โรจนประภาวสุ | 1660707538 | Backend API: `server.ts`, routes, controllers, validators, middlewares |
 
 ## Tech Stack
 
 | ส่วน | เทคโนโลยี |
 |---|---|
-| Frontend | Vite, React 19 (TypeScript), React Router v7, Tailwind CSS v4 + DaisyUI 5 |
+| Frontend | Vite, React 19 (TypeScript), React Router v7, Tailwind CSS v4 + DaisyUI 5, Leaflet (react-leaflet) |
 | Client State | Zustand (persist ลง LocalStorage) |
 | Server Cache | TanStack Query v5 |
-| Backend | Node.js, Express 5 (TypeScript), cors, dotenv, express.json() |
+| Backend | Node.js, Express 5 (TypeScript), cors, dotenv, express.json(), JWT, bcryptjs, multer |
 | Database | PostgreSQL + Prisma ORM 7 (adapter-pg) |
+
+## ฟีเจอร์หลัก
+
+- **แผนที่ Leaflet:** หมุดทุกเรื่องแยกสีตามสถานะ (แดง = รอดำเนินการ, เหลือง = กำลังแก้ไข, เขียว = เสร็จสิ้น) คลิกหมุดจะเห็นสรุปและลิงก์ไปหน้ารายละเอียด
+- **แจ้งปัญหา:** ปักหมุดบนแผนที่หรือกดใช้ตำแหน่งปัจจุบัน และแนบรูปได้ (JPG/PNG/WEBP ไม่เกิน 5MB)
+- **3 Role:** ประชาชน / เจ้าหน้าที่ / แอดมิน ล็อกอินด้วยอีเมลและรหัสผ่าน (เก็บแบบ bcrypt hash) ใช้ JWT ยืนยันตัวตน
+- **StatusLog:** ทุกครั้งที่เปลี่ยนสถานะจะบันทึกว่าใครเปลี่ยน เปลี่ยนจากอะไรเป็นอะไร และหมายเหตุ แสดงเป็นไทม์ไลน์ในหน้ารายละเอียด
+- **ความคิดเห็น:** ผู้ใช้ที่ล็อกอินแสดงความคิดเห็นได้ พร้อมป้ายบอก role
+- **ติดตามเรื่อง:** กด ☆ เพื่อติดตาม (เก็บในเครื่อง ไม่ต้องล็อกอิน)
+- Responsive, Skeleton ระหว่างโหลด, Error Alert, Toast, Dark mode
+
+### สิทธิ์ของแต่ละ Role
+
+| การกระทำ | ไม่ล็อกอิน | ประชาชน | เจ้าหน้าที่ | แอดมิน |
+|---|:-:|:-:|:-:|:-:|
+| ดูรายการ / แผนที่ / รายละเอียด | ✅ | ✅ | ✅ | ✅ |
+| แจ้งปัญหา / แสดงความคิดเห็น | | ✅ | ✅ | ✅ |
+| แก้ไขเรื่อง | | ของตัวเอง (ตอนรอดำเนินการ) | ✅ | ✅ |
+| ลบเรื่อง | | ของตัวเอง (ตอนรอดำเนินการ) | | ✅ |
+| เปลี่ยนสถานะ | | | ✅ | ✅ |
+| จัดการ role ผู้ใช้ | | | | ✅ |
+
+## บัญชีสาธิต (จาก seed)
+
+รหัสผ่านทุกบัญชี: `demo1234`
+
+| Role | อีเมล |
+|---|---|
+| แอดมิน | `admin@klai.local` |
+| เจ้าหน้าที่ | `staff1@klai.local`, `staff2@klai.local` |
+| ประชาชน | `somchai@klai.local`, `somying@klai.local`, `prayoon@klai.local`, `malee@klai.local`, `wichai@klai.local` |
 
 ## โครงสร้างโฟลเดอร์
 
 ```
 Klai-Chumchon/
-├── client/                     # Frontend (port 5173)
+├── client/                         # Frontend (port 5173)
+│   ├── public/members/             # รูปสมาชิกสำหรับหน้า About
 │   └── src/
-│       ├── api/reportApi.ts    # ฟังก์ชัน fetch ไปยัง REST API
-│       ├── hooks/useReports.ts # useQuery / useMutation + invalidateQueries
-│       ├── stores/useUiStore.ts# Zustand: ธีม, บุ๊กมาร์ก, ตัวกรอง, toast
+│       ├── api/reportApi.ts        # ฟังก์ชัน fetch ไปยัง REST API (แนบ JWT ให้อัตโนมัติ)
+│       ├── hooks/                  # useReports.ts, useAuth.ts (useQuery / useMutation)
+│       ├── stores/                 # useUiStore.ts, useAuthStore.ts (Zustand)
 │       ├── layouts/MainLayout.tsx
-│       ├── components/         # ReportCard, ReportForm, Badges, Feedback, ConfirmModal
-│       ├── pages/              # Home, ReportList, ReportDetail, New, Edit, Bookmarks, Admin, NotFound
-│       ├── router.tsx          # createBrowserRouter
+│       ├── components/             # MapView, ReportCard, ReportForm, RequireAuth, Badges, Feedback, ConfirmModal
+│       ├── pages/                  # Home, ReportList, ReportDetail, New, Edit, Map, MyReports,
+│       │                           # Bookmarks, Admin, About, Login, Register, NotFound
+│       ├── router.tsx
 │       ├── types.ts
 │       └── main.tsx
-└── server/                     # Backend (port 3000)
-    ├── prisma/
-    │   ├── schema.prisma       # Category, Report, Comment + enum
-    │   ├── migrations/
-    │   └── seed.ts             # 6 หมวด, 40 เรื่อง, ความคิดเห็นตัวอย่าง
-    ├── prisma.config.ts
-    └── src/
-        ├── server.ts           # Express + middleware
-        ├── lib/prisma.ts       # PrismaClient + pg Pool
-        ├── routes/reportRoutes.ts
-        ├── controllers/        # report, comment, category
-        ├── validators/reportValidator.ts
-        ├── middlewares/errorHandler.ts
-        └── types.ts
+├── server/                         # Backend (port 3000)
+│   ├── prisma/
+│   │   ├── schema.prisma           # User, Category, Report, StatusLog, Comment
+│   │   ├── migrations/
+│   │   └── seed.ts                 # 8 ผู้ใช้, 6 หมวด, 40 เรื่อง, ประวัติสถานะ, ความคิดเห็น
+│   ├── uploads/                    # รูปที่ผู้ใช้อัปโหลด (ไม่ขึ้น git)
+│   └── src/
+│       ├── server.ts
+│       ├── lib/prisma.ts
+│       ├── routes/                 # authRoutes.ts, reportRoutes.ts
+│       ├── controllers/            # auth, user, report, comment, category
+│       ├── middlewares/            # auth.ts (JWT + role), upload.ts (multer), errorHandler.ts
+│       ├── validators/reportValidator.ts
+│       └── types/
+└── docs/SUPABASE.md                # คู่มือย้ายฐานข้อมูลขึ้น Supabase
 ```
 
 ## หน้าเว็บ
 
-| Path | หน้า |
-|---|---|
-| `/` | หน้าแรก: สถิติ, หมวดหมู่, เรื่องล่าสุด |
-| `/reports` | รายการทั้งหมด (Items Master) ค้นหา/กรองหมวด/กรองสถานะ |
-| `/reports/:id` | รายละเอียด (Dynamic Detail) + ความคิดเห็น + ติดตาม |
-| `/reports/new` | ฟอร์มแจ้งปัญหา |
-| `/reports/:id/edit` | ฟอร์มแก้ไข |
-| `/bookmarks` | เรื่องที่ติดตาม (เก็บ id ใน Zustand) |
-| `/admin` | จัดการระบบ: เปลี่ยนสถานะ, แก้ไข, ลบ |
+| Path | หน้า | สิทธิ์ |
+|---|---|---|
+| `/` | หน้าแรก: สถิติ, หมวดหมู่, เรื่องล่าสุด | ทุกคน |
+| `/reports` | รายการทั้งหมด (Items Master) ค้นหา/กรอง | ทุกคน |
+| `/reports/:id` | รายละเอียด (Dynamic Detail) แผนที่ ไทม์ไลน์สถานะ ความคิดเห็น | ทุกคน |
+| `/map` | แผนที่รวมทุกเรื่อง | ทุกคน |
+| `/bookmarks` | เรื่องที่ติดตาม | ทุกคน |
+| `/about` | เกี่ยวกับเรา / สมาชิก | ทุกคน |
+| `/login`, `/register` | เข้าสู่ระบบ / สมัครสมาชิก | ทุกคน |
+| `/reports/new` | แจ้งปัญหา | ล็อกอิน |
+| `/reports/:id/edit` | แก้ไข | ล็อกอิน (ตามสิทธิ์) |
+| `/my-reports` | เรื่องที่ฉันแจ้ง | ล็อกอิน |
+| `/admin` | จัดการระบบ (เรื่อง + ผู้ใช้) | เจ้าหน้าที่ / แอดมิน |
 
 ## REST API
 
-| Method | Endpoint | หน้าที่ | Status |
-|---|---|---|---|
-| GET | `/api/health` | เช็กว่า server ทำงาน | 200 |
-| GET | `/api/categories` | หมวดหมู่ + จำนวนเรื่อง | 200 |
-| GET | `/api/reports?search=&status=&categoryId=` | รายการเรื่อง | 200 |
-| GET | `/api/reports/:id` | รายละเอียด + ความคิดเห็น | 200 / 400 / 404 |
-| POST | `/api/reports` | แจ้งเรื่องใหม่ | 201 / 400 |
-| PUT | `/api/reports/:id` | แก้ไขเรื่อง | 200 / 400 / 404 |
-| PATCH | `/api/reports/:id/status` | เปลี่ยนสถานะ | 200 / 400 / 404 |
-| DELETE | `/api/reports/:id` | ลบเรื่อง (ความคิดเห็นลบตาม) | 200 / 404 |
-| POST | `/api/reports/:id/comments` | เพิ่มความคิดเห็น | 201 / 400 / 404 |
-| DELETE | `/api/comments/:id` | ลบความคิดเห็น | 200 / 404 |
+| Method | Endpoint | สิทธิ์ | หน้าที่ | Status |
+|---|---|---|---|---|
+| GET | `/api/health` | - | เช็กว่า server ทำงาน | 200 |
+| POST | `/api/auth/register` | - | สมัครสมาชิก (role ประชาชน) | 201 / 400 / 409 |
+| POST | `/api/auth/login` | - | เข้าสู่ระบบ ได้ JWT | 200 / 400 / 401 |
+| GET | `/api/auth/me` | ล็อกอิน | ข้อมูลผู้ใช้ปัจจุบัน | 200 / 401 |
+| GET | `/api/users` | แอดมิน | รายชื่อผู้ใช้ | 200 / 401 / 403 |
+| PATCH | `/api/users/:id/role` | แอดมิน | เปลี่ยน role | 200 / 400 / 403 / 404 |
+| GET | `/api/categories` | - | หมวดหมู่ + จำนวนเรื่อง | 200 |
+| GET | `/api/reports?search=&status=&categoryId=&reporterId=` | - | รายการเรื่อง | 200 |
+| GET | `/api/reports/:id` | - | รายละเอียด + ความคิดเห็น + StatusLog | 200 / 400 / 404 |
+| POST | `/api/reports` | ล็อกอิน | แจ้งเรื่อง (multipart + รูป) | 201 / 400 / 401 |
+| PUT | `/api/reports/:id` | ตามสิทธิ์ | แก้ไขเรื่อง | 200 / 400 / 403 / 404 |
+| PATCH | `/api/reports/:id/status` | เจ้าหน้าที่/แอดมิน | เปลี่ยนสถานะ + บันทึก StatusLog | 200 / 400 / 403 / 404 |
+| DELETE | `/api/reports/:id` | ตามสิทธิ์ | ลบเรื่อง (ความคิดเห็น/StatusLog/รูปลบตาม) | 200 / 403 / 404 |
+| POST | `/api/reports/:id/comments` | ล็อกอิน | เพิ่มความคิดเห็น | 201 / 400 / 404 |
+| DELETE | `/api/comments/:id` | เจ้าของ/แอดมิน | ลบความคิดเห็น | 200 / 403 / 404 |
 
-ทุก response ใช้รูปแบบ `{ success, message?, data? }` ถ้าข้อมูลไม่ผ่าน validation จะได้ 400 และ `errors` เป็นรายการข้อความ
+ทุก response ใช้รูปแบบ `{ success, message?, data? }` ข้อมูลไม่ผ่าน validation จะได้ 400 พร้อม `errors`
 
 ## วิธีติดตั้งและรัน
 
-ต้องมี Node.js 20+ และ PostgreSQL (เครื่องตัวเองหรือ Supabase)
+ต้องมี Node.js 20+ และ PostgreSQL (ในเครื่อง หรือ Supabase ดู [docs/SUPABASE.md](docs/SUPABASE.md))
 
 ```bash
 # 1. ติดตั้งแพ็กเกจ (ทั้ง client และ server)
 npm install
 
-# 2. ตั้งค่าฐานข้อมูล
-cp server/.env.example server/.env   # แล้วแก้ DATABASE_URL
+# 2. ตั้งค่า (แก้ DATABASE_URL และ JWT_SECRET)
+cp server/.env.example server/.env
 
 # 3. สร้างตารางและใส่ข้อมูลตัวอย่าง
 npm run db:migrate
@@ -101,9 +153,13 @@ npm run dev
 
 ## การแยก State (Dual-State)
 
-- **TanStack Query** เป็นเจ้าของข้อมูลจากฐานข้อมูลทั้งหมด (รายการเรื่อง, รายละเอียด, หมวดหมู่) หลัง create/update/delete จะเรียก `queryClient.invalidateQueries()` เพื่อให้หน้าจออัปเดตทันทีโดยไม่ต้องรีเฟรช
-- **Zustand** เก็บเฉพาะสถานะหน้าจอ: ธีม, id ของเรื่องที่ติดตาม (persist ลง LocalStorage), ตัวกรองค้นหา และข้อความแจ้งเตือน ไม่เก็บข้อมูลเรื่องที่แจ้งซ้ำ
+- **TanStack Query** เป็นเจ้าของข้อมูลจากฐานข้อมูลทั้งหมด (เรื่องที่แจ้ง, รายละเอียด, หมวดหมู่, ผู้ใช้ปัจจุบัน `/auth/me`, รายชื่อผู้ใช้) หลัง create/update/delete จะเรียก `queryClient.invalidateQueries()` ให้หน้าจออัปเดตทันทีโดยไม่ต้องรีเฟรช
+- **Zustand** เก็บเฉพาะสถานะฝั่ง client:
+  - `useUiStore`: ธีม, id เรื่องที่ติดตาม (persist), ตัวกรอง (ใช้ร่วมกันระหว่างหน้ารายการกับแผนที่), toast
+  - `useAuthStore`: JWT token (persist) โดยไม่เก็บข้อมูลผู้ใช้ซ้ำ ข้อมูลผู้ใช้ดึงจาก TanStack Query
 
 ## หมายเหตุ
 
-ข้อมูลใน `seed.ts` เป็นข้อมูลสมมติสำหรับทดสอบระบบ ชื่อบุคคลและสถานที่ไม่ใช่ข้อมูลจริง ระบบนี้ยังไม่มีการล็อกอิน หน้า `/admin` จึงเปิดให้ทุกคนเข้าได้ (อยู่นอกขอบเขตของโจทย์)
+- ข้อมูลใน `seed.ts` เป็นข้อมูลสมมติสำหรับทดสอบระบบ ชื่อบุคคลและจุดสังเกตไม่ใช่ข้อมูลจริง พิกัดกระจายรอบมหาวิทยาลัยกรุงเทพ วิทยาเขตรังสิต (จุดกลางโดยประมาณ)
+- แผนที่ใช้ tile จาก OpenStreetMap ต้องต่ออินเทอร์เน็ต
+- ใส่รูปสมาชิกในหน้า About ได้โดยวางไฟล์ใน `client/public/members/` แล้วใส่ชื่อไฟล์ที่ช่อง `photo` ใน `client/src/pages/AboutPage.tsx`

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { Prisma } from "@prisma/client";
+import multer from "multer";
 
 // ไม่เจอ path
 export function notFound(req: Request, res: Response) {
@@ -11,6 +12,12 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   // JSON ที่ส่งมาพัง
   if (err instanceof SyntaxError && "body" in err) {
     return res.status(400).json({ success: false, message: "รูปแบบ JSON ไม่ถูกต้อง" });
+  }
+
+  // error จากการอัปโหลดรูป
+  if (err instanceof multer.MulterError) {
+    const message = err.code === "LIMIT_FILE_SIZE" ? "รูปต้องมีขนาดไม่เกิน 5MB" : "อัปโหลดได้เฉพาะรูป JPG, PNG หรือ WEBP";
+    return res.status(400).json({ success: false, message });
   }
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {

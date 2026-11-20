@@ -1,24 +1,22 @@
-// รูปแบบ response ที่ส่งกลับไปให้หน้าบ้านทุกเส้น
-export interface ApiResponse<T> {
-  success: boolean;
-  message?: string;
-  data?: T;
-  errors?: string[];
-}
-
+// ข้อมูลเรื่องที่แจ้งหลังผ่านการตรวจแล้ว (reporterId กับ imageUrl ใส่ใน controller)
 export interface ReportInput {
   title: string;
   description: string;
   location: string;
-  reporterName: string;
-  phone: string | null;
-  imageUrl: string | null;
+  latitude: number;
+  longitude: number;
   priority: "LOW" | "MEDIUM" | "HIGH";
-  status: "PENDING" | "IN_PROGRESS" | "RESOLVED";
   categoryId: number;
 }
 
-export interface CommentInput {
-  authorName: string;
-  message: string;
+export interface RegisterInput {
+  name: string;
+  email: string;
+  password: string;
+  phone: string | null;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
 }

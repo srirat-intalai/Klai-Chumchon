@@ -27,3 +27,7 @@ server/src/generated
 *.njsproj
 *.sln
 *.sw?
+
+# รูปที่ผู้ใช้อัปโหลด
+server/uploads/*
+!server/uploads/.gitkeep

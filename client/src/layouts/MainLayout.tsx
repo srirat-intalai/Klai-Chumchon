@@ -1,13 +1,10 @@
 import { useEffect } from "react";
-import { Link, NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet, useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useUiStore } from "../stores/useUiStore";
-
-const menus = [
-  { to: "/", label: "หน้าแรก" },
-  { to: "/reports", label: "เรื่องที่แจ้ง" },
-  { to: "/bookmarks", label: "ที่ติดตาม" },
-  { to: "/admin", label: "จัดการระบบ" },
-];
+import { useAuthStore } from "../stores/useAuthStore";
+import { useMe } from "../hooks/useAuth";
+import { RoleBadge } from "../components/Badges";
 
 function navClass({ isActive }: { isActive: boolean }) {
   return isActive ? "font-semibold text-primary" : "";
@@ -19,6 +16,11 @@ export default function MainLayout() {
   const bookmarkCount = useUiStore((s) => s.bookmarks.length);
   const toast = useUiStore((s) => s.toast);
   const hideToast = useUiStore((s) => s.hideToast);
+  const showToast = useUiStore((s) => s.showToast);
+  const logout = useAuthStore((s) => s.logout);
+  const { user, isLoading } = useMe();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
 
   // เปลี่ยนธีม DaisyUI ที่แท็ก html
   useEffect(() => {
@@ -31,6 +33,25 @@ export default function MainLayout() {
     const timer = setTimeout(hideToast, 3000);
     return () => clearTimeout(timer);
   }, [toast, hideToast]);
+
+  function handleLogout() {
+    logout();
+    qc.removeQueries({ queryKey: ["me"] });
+    qc.removeQueries({ queryKey: ["users"] });
+    showToast("ออกจากระบบแล้ว");
+    navigate("/");
+  }
+
+  // เมนูเปลี่ยนตาม role
+  const menus = [
+    { to: "/", label: "หน้าแรก" },
+    { to: "/reports", label: "เรื่องที่แจ้ง" },
+    { to: "/map", label: "แผนที่" },
+    { to: "/bookmarks", label: "ที่ติดตาม" },
+  ];
+  if (user) menus.push({ to: "/my-reports", label: "เรื่องของฉัน" });
+  if (user && user.role !== "CITIZEN") menus.push({ to: "/admin", label: "จัดการระบบ" });
+  menus.push({ to: "/about", label: "เกี่ยวกับเรา" });
 
   const links = menus.map((m) => (
     <li key={m.to}>
@@ -45,10 +66,10 @@ export default function MainLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-base-200">
-      <header className="navbar bg-base-100 border-b border-base-300 sticky top-0 z-30 px-2 sm:px-6">
+      <header className="navbar bg-base-100 border-b border-base-300 sticky top-0 z-[1000] px-2 sm:px-6">
         <div className="navbar-start">
           {/* เมนูมือถือ */}
-          <div className="dropdown lg:hidden">
+          <div className="dropdown xl:hidden">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-square" aria-label="เปิดเมนู">
               ☰
             </div>
@@ -63,7 +84,7 @@ export default function MainLayout() {
           </Link>
         </div>
 
-        <nav className="navbar-center hidden lg:flex">
+        <nav className="navbar-center hidden xl:flex">
           <ul className="menu menu-horizontal px-1 gap-1">{links}</ul>
         </nav>
 
@@ -74,6 +95,39 @@ export default function MainLayout() {
           <Link to="/reports/new" className="btn btn-primary btn-sm sm:btn-md" aria-label="แจ้งปัญหา">
             +<span className="hidden sm:inline"> แจ้งปัญหา</span>
           </Link>
+
+          {isLoading && <span className="loading loading-spinner loading-sm" />}
+          {!isLoading && !user && (
+            <Link to="/login" className="btn btn-ghost btn-sm sm:btn-md">
+              เข้าสู่ระบบ
+            </Link>
+          )}
+          {user && (
+            <div className="dropdown dropdown-end">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar avatar-placeholder" aria-label="เมนูผู้ใช้">
+                <div className="bg-neutral text-neutral-content w-9 rounded-full">
+                  <span>{user.name.charAt(0)}</span>
+                </div>
+              </div>
+              <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-40 mt-3 w-56 p-2 shadow">
+                <li className="menu-title">
+                  <span className="flex flex-col gap-1">
+                    <span className="text-base-content font-semibold">{user.name}</span>
+                    <span className="text-xs font-normal">{user.email}</span>
+                    <RoleBadge role={user.role} />
+                  </span>
+                </li>
+                <li>
+                  <Link to="/my-reports">เรื่องของฉัน</Link>
+                </li>
+                <li>
+                  <button onClick={handleLogout} className="text-error">
+                    ออกจากระบบ
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </header>
 
@@ -86,7 +140,7 @@ export default function MainLayout() {
       </footer>
 
       {toast && (
-        <div className="toast toast-end toast-bottom z-50">
+        <div className="toast toast-end toast-bottom z-[1100]">
           <div className={`alert ${toast.type === "success" ? "alert-success" : "alert-error"}`}>
             <span>{toast.text}</span>
           </div>

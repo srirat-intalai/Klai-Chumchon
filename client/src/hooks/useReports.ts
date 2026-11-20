@@ -10,7 +10,7 @@ import {
   updateReport,
   updateStatus,
 } from "../api/reportApi";
-import type { CommentFormData, ReportFilters, ReportFormData, ReportStatus } from "../types";
+import type { ReportFilters, ReportFormData, ReportStatus } from "../types";
 
 // ---------- อ่านข้อมูล ----------
 
@@ -67,7 +67,7 @@ export function useUpdateReport(id: number) {
 export function useUpdateStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { id: number; status: ReportStatus }) => updateStatus(v.id, v.status),
+    mutationFn: (v: { id: number; status: ReportStatus; note: string }) => updateStatus(v.id, v.status, v.note),
     onSuccess: (_data, v) => {
       qc.invalidateQueries({ queryKey: ["reports"] });
       qc.invalidateQueries({ queryKey: ["report", v.id] });
@@ -90,7 +90,7 @@ export function useDeleteReport() {
 export function useAddComment(reportId: number) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CommentFormData) => addComment(reportId, data),
+    mutationFn: (message: string) => addComment(reportId, message),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["report", reportId] });
       qc.invalidateQueries({ queryKey: ["reports"] }); // จำนวนคอมเมนต์ในการ์ดเปลี่ยน

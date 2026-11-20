@@ -6,18 +6,35 @@ datasource db {
   provider = "postgresql"
 }
 
-// สถานะของเรื่องที่แจ้ง
-enum ReportStatus {
-  PENDING
-  IN_PROGRESS
-  RESOLVED
+enum Role {
+  CITIZEN // ประชาชน
+  STAFF // เจ้าหน้าที่
+  ADMIN // แอดมิน
 }
 
-// ความเร่งด่วน
+enum ReportStatus {
+  PENDING // รอดำเนินการ
+  IN_PROGRESS // กำลังแก้ไข
+  RESOLVED // เสร็จสิ้น
+}
+
 enum Priority {
   LOW
   MEDIUM
   HIGH
+}
+
+model User {
+  id           Int         @id @default(autoincrement())
+  name         String      @db.VarChar(100)
+  email        String      @unique @db.VarChar(150)
+  passwordHash String
+  phone        String?     @db.VarChar(20)
+  role         Role        @default(CITIZEN)
+  reports      Report[]
+  comments     Comment[]
+  statusLogs   StatusLog[]
+  createdAt    DateTime    @default(now())
 }
 
 model Category {
@@ -29,34 +46,53 @@ model Category {
 }
 
 model Report {
-  id           Int          @id @default(autoincrement())
-  title        String       @db.VarChar(120)
-  description  String       @db.VarChar(2000)
-  location     String       @db.VarChar(200)
-  reporterName String       @db.VarChar(100)
-  phone        String?      @db.VarChar(20)
-  imageUrl     String?      @db.VarChar(500)
-  status       ReportStatus @default(PENDING)
-  priority     Priority     @default(MEDIUM)
-  categoryId   Int
+  id          Int          @id @default(autoincrement())
+  title       String       @db.VarChar(120)
+  description String       @db.VarChar(2000)
+  location    String       @db.VarChar(200) // จุดสังเกต เช่น หน้าร้าน/ปากซอย
+  latitude    Float
+  longitude   Float
+  imageUrl    String?      @db.VarChar(300)
+  status      ReportStatus @default(PENDING)
+  priority    Priority     @default(MEDIUM)
+  reporterId  Int
+  reporter    User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  categoryId  Int
   // ห้ามลบหมวดที่ยังมีเรื่องผูกอยู่
-  category     Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  comments     Comment[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  comments    Comment[]
+  statusLogs  StatusLog[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@index([status])
   @@index([categoryId])
+  @@index([reporterId])
+}
+
+// ประวัติเปลี่ยนสถานะ ไว้ตรวจย้อนหลังว่าใครเปลี่ยนเมื่อไหร่
+model StatusLog {
+  id          Int           @id @default(autoincrement())
+  fromStatus  ReportStatus?
+  toStatus    ReportStatus
+  note        String?       @db.VarChar(500)
+  reportId    Int
+  report      Report        @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  changedById Int
+  changedBy   User          @relation(fields: [changedById], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+
+  @@index([reportId])
 }
 
 model Comment {
-  id         Int      @id @default(autoincrement())
-  authorName String   @db.VarChar(100)
-  message    String   @db.VarChar(1000)
-  reportId   Int
-  // ลบเรื่องแล้วคอมเมนต์หายตามไปด้วย
-  report     Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  message   String   @db.VarChar(1000)
+  reportId  Int
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@index([reportId])
 }
