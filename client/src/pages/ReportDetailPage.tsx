@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { ArrowLeft, Clock, ExternalLink, History, Map as MapIcon, MapPin, MessageCircle, Pencil, Star, User, Wrench } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, ExternalLink, History, Map as MapIcon, MapPin, MessageCircle, Pencil, Star, User } from "lucide-react";
 import { useAddComment, useDeleteComment, useDeleteReport, useReport } from "../hooks/useReports";
 import { useMe } from "../hooks/useAuth";
 import { useUiStore } from "../stores/useUiStore";
@@ -57,6 +57,8 @@ export default function ReportDetailPage() {
 
   // สิทธิ์ตรงกับหลังบ้าน (หลังบ้านเช็กซ้ำอีกที ตรงนี้แค่ซ่อนปุ่ม)
   const isStaff = user?.role === "STAFF" || user?.role === "ADMIN";
+  // log เรียงจากเก่าไปใหม่ ตัวสุดท้ายคือความเคลื่อนไหวล่าสุด
+  const latest = r.statusLogs.length > 0 ? r.statusLogs[r.statusLogs.length - 1] : null;
   const isOwnerPending = user?.id === r.reporterId && r.status === "PENDING";
   const canEdit = isStaff || isOwnerPending;
   const canDelete = user?.role === "ADMIN" || isOwnerPending;
@@ -124,6 +126,40 @@ export default function ReportDetailPage() {
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-bold">{r.title}</h1>
+
+              {/* ความเคลื่อนไหวล่าสุด: คำตอบแรกที่ผู้แจ้งอยากรู้ (เจ้าหน้าที่ว่ายังไง) */}
+              {latest && (
+                <section aria-labelledby="latest-update" className="rounded-box border border-base-300 bg-secondary/40 p-4 space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h2 id="latest-update" className="text-sm font-semibold flex flex-wrap items-center gap-2">
+                      ความเคลื่อนไหวล่าสุด
+                      {latest.fromStatus ? (
+                        <span className="inline-flex items-center gap-1.5 font-normal">
+                          <StatusBadge status={latest.fromStatus} />
+                          <ArrowRight size={14} aria-label="เปลี่ยนเป็น" />
+                          <StatusBadge status={latest.toStatus} />
+                        </span>
+                      ) : (
+                        <StatusBadge status={latest.toStatus} />
+                      )}
+                    </h2>
+                    {isStaff && (
+                      <button className="btn btn-primary w-full sm:w-auto" onClick={() => setShowStatus(true)}>
+                        อัปเดตสถานะ
+                      </button>
+                    )}
+                  </div>
+                  {latest.note && <p className="leading-relaxed">“{latest.note}”</p>}
+                  <p className="text-sm text-base-content/80 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="inline-flex items-center gap-1.5">
+                      {latest.changedBy.name} <RoleBadge role={latest.changedBy.role} />
+                    </span>
+                    <span aria-hidden="true">·</span>
+                    <span>{formatDate(latest.createdAt)}</span>
+                  </p>
+                </section>
+              )}
+
               <p className="whitespace-pre-line leading-relaxed">{r.description}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm bg-base-200 rounded-box p-4">
@@ -138,7 +174,7 @@ export default function ReportDetailPage() {
 
               <div className="card-actions justify-between flex-wrap gap-2">
                 <button
-                  className={`btn ${saved ? "btn-warning" : "btn-outline"}`}
+                  className={`btn ${saved ? "btn-secondary" : "btn-outline"}`}
                   onClick={() => toggleBookmark(r.id)}
                   aria-pressed={saved}
                 >
@@ -160,6 +196,46 @@ export default function ReportDetailPage() {
               </div>
             </div>
           </article>
+
+          <section aria-labelledby="history-title" className="card bg-base-100 border border-base-300">
+            <div className="card-body">
+              <h2 id="history-title" className="card-title">
+                <History size={20} aria-hidden="true" /> ประวัติสถานะ ({r.statusLogs.length})
+              </h2>
+              <ol className="mt-1">
+                {r.statusLogs.map((log, i) => (
+                  <li key={log.id} className="relative flex gap-4 pb-5 last:pb-0">
+                    {/* เส้นเชื่อมระหว่างจุด */}
+                    {i < r.statusLogs.length - 1 && (
+                      <span className="absolute left-[7px] top-5 bottom-0 w-0.5 bg-base-300" aria-hidden="true" />
+                    )}
+                    <span
+                      className="relative mt-1 block w-4 h-4 shrink-0 rounded-full ring-4 ring-base-100"
+                      style={{ background: STATUS_COLOR[log.toStatus] }}
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0 space-y-1">
+                      <p className="font-medium flex flex-wrap items-center gap-1.5">
+                        {log.fromStatus ? (
+                          <>
+                            {STATUS_LABEL[log.fromStatus]}
+                            <ArrowRight size={14} aria-label="เปลี่ยนเป็น" />
+                            {STATUS_LABEL[log.toStatus]}
+                          </>
+                        ) : (
+                          <>แจ้งเรื่อง · {STATUS_LABEL[log.toStatus]}</>
+                        )}
+                      </p>
+                      {log.note && <p className="text-base-content/80">{log.note}</p>}
+                      <p className="text-sm text-base-content/70">
+                        {log.changedBy.name} · {formatDate(log.createdAt)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
 
           <section className="card bg-base-100 border border-base-300">
             <div className="card-body">
@@ -229,7 +305,7 @@ export default function ReportDetailPage() {
           </section>
         </div>
 
-        {/* ฝั่งขวา: แผนที่ + สถานะ */}
+        {/* ฝั่งขวา: ข้อมูลประกอบ (แผนที่ แล้วค่าฝุ่น) */}
         <aside className="space-y-6">
           <div className="card bg-base-100 border border-base-300">
             <div className="card-body p-4 gap-2">
@@ -250,50 +326,7 @@ export default function ReportDetailPage() {
 
           <AirQualityCard lat={r.latitude} lng={r.longitude} />
 
-          {isStaff && (
-            <div className="card bg-secondary/40 border border-base-300">
-              <div className="card-body p-4 gap-3">
-                <h2 className="font-semibold flex items-center gap-2">
-                  <Wrench size={18} aria-hidden="true" /> สำหรับเจ้าหน้าที่
-                </h2>
-                <p className="text-sm flex items-center gap-2">
-                  สถานะตอนนี้ <StatusBadge status={r.status} />
-                </p>
-                <button className="btn btn-primary btn-sm" onClick={() => setShowStatus(true)}>
-                  อัปเดตสถานะ
-                </button>
-              </div>
-            </div>
-          )}
 
-          <div className="card bg-base-100 border border-base-300">
-            <div className="card-body p-4">
-              <h2 className="font-semibold mb-2 flex items-center gap-2">
-                <History size={18} aria-hidden="true" /> ประวัติสถานะ
-              </h2>
-              <ul className="timeline timeline-vertical timeline-compact">
-                {r.statusLogs.map((log, i) => (
-                  <li key={log.id}>
-                    {i > 0 && <hr />}
-                    <div className="timeline-middle">
-                      <span
-                        className="block w-3 h-3 rounded-full"
-                        style={{ background: STATUS_COLOR[log.toStatus] }}
-                      />
-                    </div>
-                    <div className="timeline-end mb-4 text-sm">
-                      <p className="font-medium">{STATUS_LABEL[log.toStatus]}</p>
-                      {log.note && <p className="text-base-content/80">{log.note}</p>}
-                      <p className="text-xs text-base-content/70">
-                        {log.changedBy.name} · {formatDate(log.createdAt)}
-                      </p>
-                    </div>
-                    {i < r.statusLogs.length - 1 && <hr />}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
         </aside>
       </div>
 
