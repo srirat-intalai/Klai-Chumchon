@@ -9,7 +9,8 @@ import { CategoryLabel } from "../components/CategoryIcon";
 import StatusModal from "../components/StatusModal";
 import { EmptyState, ErrorAlert, TableSkeleton } from "../components/Feedback";
 import ConfirmModal from "../components/ConfirmModal";
-import { ROLE_LABEL, STATUS_LABEL } from "../types";
+import { StatusPills } from "../components/FilterPills";
+import { ROLE_LABEL } from "../types";
 import type { Report, ReportStatus, Role } from "../types";
 import { formatDate } from "../utils";
 
@@ -41,23 +42,55 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <div className="space-y-4">
-      <select
-        className="select select-bordered select-sm"
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value as ReportStatus | "")}
-      >
-        <option value="">ทุกสถานะ</option>
-        <option value="PENDING">{STATUS_LABEL.PENDING}</option>
-        <option value="IN_PROGRESS">{STATUS_LABEL.IN_PROGRESS}</option>
-        <option value="RESOLVED">{STATUS_LABEL.RESOLVED}</option>
-      </select>
+      <StatusPills value={statusFilter} onChange={setStatusFilter} />
 
       {reports.isLoading && <TableSkeleton />}
       {reports.isError && <ErrorAlert message={reports.error.message} onRetry={() => reports.refetch()} />}
       {reports.data && reports.data.length === 0 && <EmptyState text="ไม่มีเรื่องในสถานะนี้" />}
 
+      {/* มือถือ: การ์ดเรียงลง ปุ่มใหญ่กดง่าย (เจ้าหน้าที่ภาคสนาม) */}
       {reports.data && reports.data.length > 0 && (
-        <div className="overflow-x-auto bg-base-100 rounded-box border border-base-300">
+        <ul className="sm:hidden space-y-3" aria-label="รายการเรื่องที่แจ้ง">
+          {reports.data.map((r) => (
+            <li key={r.id} className="bg-base-100 border border-base-300 rounded-box p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <Link to={`/reports/${r.id}`} className="font-semibold leading-snug hover:underline underline-offset-4">
+                  <span className="text-base-content/60 font-normal tabular">#{r.id}</span> {r.title}
+                </Link>
+                <StatusBadge status={r.status} />
+              </div>
+              <div className="text-sm text-base-content/80 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <CategoryLabel category={r.category} />
+                <PriorityBadge priority={r.priority} />
+              </div>
+              <p className="text-sm text-base-content/70">
+                {r.reporter.name} · {formatDate(r.createdAt)}
+              </p>
+              <div className="flex items-center gap-2">
+                <button className="btn btn-neutral flex-1 h-11 min-h-11" onClick={() => setStatusTarget(r)}>
+                  <RefreshCw size={16} aria-hidden="true" /> อัปเดตสถานะ
+                </button>
+                <Link to={`/reports/${r.id}/edit`} className="btn btn-square btn-ghost border border-base-300 size-11" aria-label={`แก้ไขเรื่อง #${r.id}`}>
+                  <Pencil size={16} aria-hidden="true" />
+                </Link>
+                {isAdmin && (
+                  <button
+                    className="btn btn-square btn-ghost border border-base-300 size-11 text-error ml-2"
+                    onClick={() => setTarget(r)}
+                    aria-label={`ลบเรื่อง #${r.id}`}
+                  >
+                    <Trash2 size={16} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* จอใหญ่: ตาราง */}
+      {reports.data && reports.data.length > 0 && (
+        <div className="hidden sm:block overflow-x-auto bg-base-100 rounded-box border border-base-300">
           <table className="table table-zebra">
             <thead>
               <tr>
