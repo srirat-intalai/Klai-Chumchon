@@ -7,6 +7,7 @@ import { EmptyState, ErrorAlert, GridSkeleton } from "../components/Feedback";
 
 const noFilter = { search: "", status: "" as const, categoryId: 0 };
 
+// หน้าเรื่องที่ติดตาม (เอา id ที่บุ๊กมาร์กใน Zustand ไปกรองจากรายการทั้งหมด)
 export default function BookmarksPage() {
   const bookmarks = useUiStore((s) => s.bookmarks);
   const pruneBookmarks = useUiStore((s) => s.pruneBookmarks);

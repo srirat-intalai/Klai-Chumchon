@@ -51,6 +51,7 @@ const stack = [
 ];
 
 
+// หน้าเกี่ยวกับเรา: สมาชิกกลุ่มและเทคโนโลยีที่ใช้
 export default function AboutPage() {
   return (
     <div className="space-y-6">

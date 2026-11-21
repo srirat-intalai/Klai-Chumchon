@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Clock, LocateFixed, Search, X } from "lucide-react";
 import { useCategories, useReports } from "../hooks/useReports";
 import { useUiStore } from "../stores/useUiStore";
@@ -6,9 +6,11 @@ import ReportCard from "../components/ReportCard";
 import { EmptyState, ErrorAlert, GridSkeleton } from "../components/Feedback";
 import { CategoryPills, StatusPills } from "../components/FilterPills";
 import { distanceKm } from "../utils";
+import type { Report } from "../types";
 
 type Sort = "latest" | "near";
 
+// หน้ารายการเรื่องทั้งหมด มีช่องค้นหา ตัวกรอง และเรียงตามระยะ
 export default function ReportListPage() {
   const search = useUiStore((s) => s.search);
   const status = useUiStore((s) => s.status);
@@ -36,6 +38,7 @@ export default function ReportListPage() {
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
 
+  // กด "ใกล้ฉัน" ขอตำแหน่งจากเบราว์เซอร์ แล้วเรียงเรื่องจากใกล้ไปไกล
   function sortNear() {
     if (me) {
       setSort("near");
@@ -62,13 +65,25 @@ export default function ReportListPage() {
     );
   }
 
-  const list = useMemo(() => {
-    const data = reports.data ?? [];
-    if (sort !== "near" || !me) return data.map((r) => ({ report: r, km: undefined as number | undefined }));
-    return data
-      .map((r) => ({ report: r, km: distanceKm(me.lat, me.lng, r.latitude, r.longitude) }))
-      .sort((a, b) => a.km - b.km);
-  }, [reports.data, sort, me]);
+  // ทำรายการที่จะโชว์ ถ้าเลือก "ใกล้ฉัน" ก็คำนวณระยะแต่ละเรื่องแล้วเรียงจากใกล้ไปไกล
+  const list: { report: Report; km: number | undefined }[] = [];
+  let data: Report[] = [];
+  if (reports.data) {
+    data = reports.data;
+  }
+  for (let i = 0; i < data.length; i++) {
+    let km: number | undefined = undefined;
+    if (sort === "near" && me) {
+      km = distanceKm(me.lat, me.lng, data[i].latitude, data[i].longitude);
+    }
+    list.push({ report: data[i], km: km });
+  }
+  if (sort === "near" && me) {
+    // เรียงน้อยไปมาก (ใกล้สุดขึ้นก่อน)
+    list.sort(function (a, b) {
+      return (a.km || 0) - (b.km || 0);
+    });
+  }
 
   return (
     <div className="space-y-5">

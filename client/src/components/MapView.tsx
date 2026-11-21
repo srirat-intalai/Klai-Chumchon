@@ -36,6 +36,7 @@ interface ReportsMapProps {
   height?: string;
 }
 
+// แผนที่รวมทุกเรื่อง หมุดสีตามสถานะ กดหมุดแล้วมี popup ลิงก์ไปหน้ารายละเอียด
 export function ReportsMap({ reports, height = "h-[60vh]" }: ReportsMapProps) {
   return (
     <MapContainer center={MAP_CENTER} zoom={14} scrollWheelZoom className={`${height} w-full rounded-box z-0`}>
@@ -63,6 +64,7 @@ export function ReportsMap({ reports, height = "h-[60vh]" }: ReportsMapProps) {
 
 // ---------- แผนที่หมุดเดียว (หน้า detail) ----------
 
+// แผนที่เล็ก ๆ โชว์หมุดเดียว ใช้ในหน้ารายละเอียด
 export function SingleMap({ lat, lng, status }: { lat: number; lng: number; status: ReportStatus }) {
   return (
     <MapContainer center={[lat, lng]} zoom={16} scrollWheelZoom={false} className="h-64 w-full rounded-box z-0">
@@ -74,6 +76,7 @@ export function SingleMap({ lat, lng, status }: { lat: number; lng: number; stat
 
 // ---------- แผนที่ให้คลิกปักหมุด (ฟอร์ม) ----------
 
+// ตัวดักการคลิกบนแผนที่ คลิกตรงไหนส่งพิกัดกลับไปให้ฟอร์ม
 function ClickToPick({ onPick }: { onPick: (lat: number, lng: number) => void }) {
   useMapEvents({
     click(e) {
@@ -98,6 +101,7 @@ interface PickerProps {
   onPick: (lat: number, lng: number) => void;
 }
 
+// แผนที่ในฟอร์มแจ้งเรื่อง ให้คลิกเลือกตำแหน่งปักหมุด
 export function LocationPicker({ lat, lng, onPick }: PickerProps) {
   const hasPin = lat !== null && lng !== null;
   return (

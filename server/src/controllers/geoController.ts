@@ -15,6 +15,7 @@ const TIMEOUT_MS = 8000;
 const cache = new Map<string, { value: unknown; expires: number }>();
 const MAX_CACHE = 500;
 
+// ดูในแคชก่อน ถ้ายังไม่หมดอายุใช้ของเดิม ไม่ต้องยิง API ซ้ำ
 function getCache<T>(key: string): T | undefined {
   const hit = cache.get(key);
   if (!hit) return undefined;
@@ -25,6 +26,7 @@ function getCache<T>(key: string): T | undefined {
   return hit.value as T;
 }
 
+// เก็บผลลัพธ์ลงแคชพร้อมเวลาหมดอายุ
 function setCache(key: string, value: unknown, ttlMs: number) {
   // เต็มแล้วลบตัวเก่าสุดทิ้ง (Map เรียงตามลำดับที่ใส่)
   if (cache.size >= MAX_CACHE) {
@@ -39,6 +41,7 @@ function setCache(key: string, value: unknown, ttlMs: number) {
 let queue: Promise<unknown> = Promise.resolve();
 let lastCall = 0;
 
+// เรียก Nominatim ทีละคำขอ เว้นห่าง 1.1 วิ ตามกฎการใช้งานของเขา
 function nominatim<T>(path: string, params: Record<string, string>): Promise<T> {
   const run = async () => {
     const wait = lastCall + 1100 - Date.now();
@@ -52,6 +55,7 @@ function nominatim<T>(path: string, params: Record<string, string>): Promise<T> 
   return job;
 }
 
+// fetch แล้วแปลงเป็น JSON ตั้ง timeout 8 วิ ไม่ตอบถือว่าพัง
 async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url, {
     headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
@@ -63,6 +67,7 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 // ---------- ตรวจ input ----------
 
+// อ่าน lat/lng จาก query แล้วเช็กว่าเป็นตัวเลขและอยู่ในช่วงที่ถูกต้อง
 function readCoords(req: Request): { lat: number; lng: number } | null {
   const lat = Number(req.query.lat);
   const lng = Number(req.query.lng);
@@ -82,6 +87,7 @@ function shortAddress(displayName: string): string {
     .slice(0, 300);
 }
 
+// API ภายนอกพัง ตอบ 502 พร้อมข้อความภาษาไทย
 function externalError(res: Response, err: unknown, what: string) {
   console.error(`[geo] ${what}:`, err instanceof Error ? err.message : err);
   res.status(502).json({ success: false, message: `ดึงข้อมูล${what}ไม่สำเร็จ ลองใหม่อีกครั้ง` });

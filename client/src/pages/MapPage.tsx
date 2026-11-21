@@ -4,6 +4,7 @@ import { ReportsMap } from "../components/MapView";
 import { ErrorAlert } from "../components/Feedback";
 import { CategoryPills, StatusPills } from "../components/FilterPills";
 
+// หน้าแผนที่ หมุดทุกเรื่อง กรองตามสถานะ/หมวดได้
 export default function MapPage() {
   // ใช้ตัวกรองชุดเดียวกับหน้ารายการ (อยู่ใน Zustand) สลับหน้าไปมาตัวกรองไม่หาย
   const status = useUiStore((s) => s.status);

@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 
+// หน้า 404 ตอนพิมพ์ URL ที่ไม่มีอยู่
 export default function NotFoundPage() {
   return (
     <div className="text-center py-20">

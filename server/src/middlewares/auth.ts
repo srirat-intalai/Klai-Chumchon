@@ -8,6 +8,7 @@ if (SECRET === "") {
   throw new Error("ไม่พบ JWT_SECRET ในไฟล์ .env");
 }
 
+// สร้าง JWT ใส่ id ผู้ใช้ หมดอายุตามที่ตั้งใน .env
 export function signToken(userId: number): string {
   return jwt.sign({ sub: String(userId) }, SECRET, { expiresIn: "7d" });
 }

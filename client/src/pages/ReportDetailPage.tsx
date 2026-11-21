@@ -17,6 +17,7 @@ import { STATUS_LABEL } from "../types";
 
 import { formatDate, imageSrc, STATUS_COLOR } from "../utils";
 
+// หน้ารายละเอียดเรื่อง: รูป แผนที่ ค่าฝุ่น ประวัติสถานะ และคอมเมนต์
 export default function ReportDetailPage() {
   const params = useParams();
   const id = Number(params.id);
@@ -77,6 +78,7 @@ export default function ReportDetailPage() {
   const canEdit = isStaff || isOwnerPending;
   const canDelete = user?.role === "ADMIN" || isOwnerPending;
 
+  // ส่งคอมเมนต์ใหม่ ว่างอยู่ไม่ให้ส่ง
   function sendComment(e: FormEvent) {
     e.preventDefault();
     // ไม่ disable ปุ่ม แต่บอกเหตุผลแทน จะได้ไม่ดูเหมือนปุ่มเสีย
@@ -93,6 +95,7 @@ export default function ReportDetailPage() {
     });
   }
 
+  // ยืนยันลบเรื่องนี้ ลบเสร็จกลับไปหน้ารายการ
   function confirmDelete() {
     deleteReport.mutate(r.id, {
       onSuccess: () => {

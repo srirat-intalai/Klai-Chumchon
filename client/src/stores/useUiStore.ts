@@ -23,6 +23,7 @@ interface UiState {
   hideToast: () => void;
 }
 
+// store ของ Zustand เก็บสถานะหน้าจอ: ธีม บุ๊กมาร์ก ตัวกรอง และ toast (ธีมกับบุ๊กมาร์กเซฟลง localStorage)
 export const useUiStore = create<UiState>()(
   persist(
     (set) => ({
@@ -67,9 +68,16 @@ export const useUiStore = create<UiState>()(
       // v0 เก็บชื่อธีมเก่า (emerald / dim) แปลงเป็นชื่อธีมใหม่
       version: 1,
       migrate: (persisted, version) => {
-        const state = (persisted ?? {}) as { theme?: string; bookmarks?: number[] };
-        if (version < 1) state.theme = state.theme === "dim" ? "klai-night" : "klai";
-        return state as Pick<UiState, "theme" | "bookmarks">;
+        // ข้อมูลเก่าที่เคยเก็บไว้ในเครื่อง
+        const state = persisted as UiState;
+        if (version < 1) {
+          if (state.theme === ("dim" as string)) {
+            state.theme = "klai-night";
+          } else {
+            state.theme = "klai";
+          }
+        }
+        return state;
       },
     }
   )

@@ -12,6 +12,7 @@ const demoAccounts = [
   { label: "แอดมิน", email: "admin@klai.local" },
 ];
 
+// หน้าล็อกอิน มีปุ่มบัญชีทดลองให้กดกรอกอัตโนมัติ
 export default function LoginPage() {
   const [params] = useSearchParams();
   const next = safeNext(params.get("next"));
@@ -25,6 +26,7 @@ export default function LoginPage() {
 
   if (user) return <Navigate to={next} replace />;
 
+  // กดเข้าสู่ระบบ สำเร็จแล้วพากลับไปหน้าที่ตั้งใจจะไป
   function submit(e: FormEvent) {
     e.preventDefault();
     login.mutate(

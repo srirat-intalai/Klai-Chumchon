@@ -4,11 +4,13 @@ import { useUiStore } from "../stores/useUiStore";
 import ReportForm from "../components/ReportForm";
 import type { ReportFormData } from "../types";
 
+// หน้าแจ้งเรื่องใหม่ (ใช้ ReportForm)
 export default function NewReportPage() {
   const navigate = useNavigate();
   const createReport = useCreateReport();
   const showToast = useUiStore((s) => s.showToast);
 
+  // ส่งเรื่องใหม่ สำเร็จแล้วไปหน้ารายละเอียดของเรื่องนั้น
   function handleSubmit(data: ReportFormData) {
     createReport.mutate(data, {
       onSuccess: (report) => {

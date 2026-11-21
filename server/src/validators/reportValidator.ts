@@ -21,11 +21,13 @@ function readNumber(value: unknown): number {
   return Number(value);
 }
 
+// อ่านค่าเป็นข้อความแล้วตัดช่องว่างหัวท้าย ไม่ใช่ข้อความก็คืน ""
 function readText(value: unknown): string {
   if (typeof value !== "string") return "";
   return value.trim();
 }
 
+// ตรวจข้อมูลแจ้งเรื่องทุกช่อง (หัวข้อ รายละเอียด พิกัด หมวด ความเร่งด่วน) คืน errors กับข้อมูลที่ใช้ได้
 export function checkReport(body: unknown): { errors: string[]; data: ReportInput } {
   const errors: string[] = [];
   const raw = toRecord(body);
@@ -73,29 +75,33 @@ export function checkReport(body: unknown): { errors: string[]; data: ReportInpu
       latitude,
       longitude,
       priority: priority as ReportInput["priority"],
-      categoryId: categoryId ?? 0,
+      categoryId: categoryId || 0,
     },
   };
 }
 
+// สถานะต้องเป็น PENDING / IN_PROGRESS / RESOLVED เท่านั้น
 export function checkStatus(value: unknown): string | null {
   const status = readText(value);
   if (STATUSES.includes(status)) return status;
   return null;
 }
 
+// บทบาทต้องเป็น CITIZEN / STAFF / ADMIN เท่านั้น
 export function checkRole(value: unknown): string | null {
   const role = readText(value);
   if (ROLES.includes(role)) return role;
   return null;
 }
 
+// หมายเหตุตอนเปลี่ยนสถานะ ไม่บังคับ แต่ห้ามยาวเกิน
 export function checkNote(value: unknown): { error: string | null; note: string | null } {
   const note = readText(value);
   if (note.length > 500) return { error: "หมายเหตุยาวเกิน 500 ตัวอักษร", note: null };
   return { error: null, note: note === "" ? null : note };
 }
 
+// คอมเมนต์ห้ามว่างและห้ามยาวเกิน
 export function checkComment(body: unknown): { error: string | null; message: string } {
   const message = readText(toRecord(body).message);
   if (message.length < 1 || message.length > 1000) {
@@ -104,6 +110,7 @@ export function checkComment(body: unknown): { error: string | null; message: st
   return { error: null, message };
 }
 
+// ตรวจข้อมูลสมัครสมาชิก ชื่อ อีเมล รหัสผ่าน เบอร์โทร
 export function checkRegister(body: unknown): { errors: string[]; data: RegisterInput } {
   const errors: string[] = [];
   const raw = toRecord(body);
@@ -120,6 +127,7 @@ export function checkRegister(body: unknown): { errors: string[]; data: Register
   return { errors, data: { name, email, password, phone: phone === "" ? null : phone } };
 }
 
+// ตรวจว่ากรอกอีเมลกับรหัสผ่านมาครบ
 export function checkLogin(body: unknown): { error: string | null; data: LoginInput } {
   const raw = toRecord(body);
   const email = readText(raw.email).toLowerCase();

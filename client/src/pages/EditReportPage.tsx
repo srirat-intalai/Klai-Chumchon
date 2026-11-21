@@ -7,6 +7,7 @@ import ReportForm from "../components/ReportForm";
 import { DetailSkeleton, ErrorAlert } from "../components/Feedback";
 import type { ReportFormData } from "../types";
 
+// หน้าแก้ไขเรื่อง เช็กสิทธิ์ก่อนว่าแก้ได้ไหม
 export default function EditReportPage() {
   const params = useParams();
   const id = Number(params.id);
@@ -51,6 +52,7 @@ export default function EditReportPage() {
     removeImage: false,
   };
 
+  // บันทึกการแก้ไข แล้วกลับไปหน้ารายละเอียด
   function handleSubmit(data: ReportFormData) {
     updateReport.mutate(data, {
       onSuccess: () => {

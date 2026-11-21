@@ -14,6 +14,7 @@ import { ROLE_LABEL } from "../types";
 import type { Report, ReportStatus, Role } from "../types";
 import { formatDate } from "../utils";
 
+// แท็บจัดการเรื่อง: ตาราง (จอใหญ่) / การ์ด (มือถือ) พร้อมปุ่มอัปเดตสถานะ แก้ไข ลบ
 function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "">("");
   const [target, setTarget] = useState<Report | null>(null);
@@ -24,6 +25,7 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
   const showToast = useUiStore((s) => s.showToast);
   const removeBookmark = useUiStore((s) => s.removeBookmark);
 
+  // กดยืนยันลบในกล่อง confirm
   function confirmDelete() {
     if (!target) return;
     const id = target.id;
@@ -171,11 +173,13 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
   );
 }
 
+// แท็บผู้ใช้ (แอดมินเท่านั้น) เปลี่ยนบทบาทได้ แต่ห้ามเปลี่ยนของตัวเอง
 function UsersTab({ myId }: { myId: number }) {
   const users = useUsers();
   const updateRole = useUpdateRole();
   const showToast = useUiStore((s) => s.showToast);
 
+  // เลือกบทบาทใหม่จาก dropdown แล้วส่งไป server
   function changeRole(id: number, role: Role) {
     updateRole.mutate(
       { id, role },
@@ -208,7 +212,7 @@ function UsersTab({ myId }: { myId: number }) {
                 <div className="text-xs text-base-content/70 sm:hidden">{u.email}</div>
               </td>
               <td className="hidden sm:table-cell">{u.email}</td>
-              <td className="hidden md:table-cell">{u._count?.reports ?? 0}</td>
+              <td className="hidden md:table-cell">{u._count ? u._count.reports : 0}</td>
               <td>
                 {u.id === myId ? (
                   <span className="flex items-center gap-1">

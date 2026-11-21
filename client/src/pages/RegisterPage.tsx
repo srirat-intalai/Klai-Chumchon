@@ -5,6 +5,7 @@ import { useMe, useRegister } from "../hooks/useAuth";
 import { useUiStore } from "../stores/useUiStore";
 import { safeNext } from "../utils";
 
+// หน้าสมัครสมาชิก
 export default function RegisterPage() {
   const [params] = useSearchParams();
   const next = safeNext(params.get("next"));
@@ -22,6 +23,7 @@ export default function RegisterPage() {
 
   if (user) return <Navigate to={next} replace />;
 
+  // กดสมัคร เช็กรหัสผ่านตรงกันก่อน แล้วค่อยส่งไป server
   function submit(e: FormEvent) {
     e.preventDefault();
     if (name.trim().length < 2) return setError("กรุณากรอกชื่ออย่างน้อย 2 ตัวอักษร");

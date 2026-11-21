@@ -25,6 +25,7 @@ export function useReports(filters: ReportFilters, keepPrevious = false) {
   });
 }
 
+// ดึงรายละเอียดเรื่องเดียวตาม id (มีคอมเมนต์ + ประวัติสถานะ)
 export function useReport(id: number) {
   return useQuery({
     queryKey: ["report", id],
@@ -33,6 +34,7 @@ export function useReport(id: number) {
   });
 }
 
+// ดึงหมวดหมู่ทั้งหมด แคชไว้ 10 นาที
 export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
@@ -54,6 +56,7 @@ export function useAirQuality(lat: number | undefined, lng: number | undefined) 
 
 // ---------- แก้ข้อมูล (หลังสำเร็จ invalidate ให้หน้าจออัปเดตเองไม่ต้องรีเฟรช) ----------
 
+// แจ้งเรื่องใหม่ สำเร็จแล้วสั่งให้รายการโหลดใหม่เอง
 export function useCreateReport() {
   const qc = useQueryClient();
   return useMutation({
@@ -65,6 +68,7 @@ export function useCreateReport() {
   });
 }
 
+// แก้ไขเรื่อง สำเร็จแล้วรีเฟรชรายการกับหน้ารายละเอียด
 export function useUpdateReport(id: number) {
   const qc = useQueryClient();
   return useMutation({
@@ -77,6 +81,7 @@ export function useUpdateReport(id: number) {
   });
 }
 
+// เปลี่ยนสถานะเรื่อง (เจ้าหน้าที่/แอดมิน)
 export function useUpdateStatus() {
   const qc = useQueryClient();
   return useMutation({
@@ -88,6 +93,7 @@ export function useUpdateStatus() {
   });
 }
 
+// ลบเรื่อง แล้วลบแคชของเรื่องนั้นทิ้ง
 export function useDeleteReport() {
   const qc = useQueryClient();
   return useMutation({
@@ -100,6 +106,7 @@ export function useDeleteReport() {
   });
 }
 
+// เพิ่มคอมเมนต์ใต้เรื่อง
 export function useAddComment(reportId: number) {
   const qc = useQueryClient();
   return useMutation({
@@ -111,6 +118,7 @@ export function useAddComment(reportId: number) {
   });
 }
 
+// ลบคอมเมนต์
 export function useDeleteComment(reportId: number) {
   const qc = useQueryClient();
   return useMutation({

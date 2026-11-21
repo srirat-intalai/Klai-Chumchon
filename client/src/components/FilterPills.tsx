@@ -8,6 +8,7 @@ import { STATUS_COLOR } from "../utils";
 
 const STATUS_LIST: ReportStatus[] = ["PENDING", "IN_PROGRESS", "RESOLVED"];
 
+// ปุ่มกลม ๆ 1 อัน กดแล้วเปลี่ยนตัวกรอง (aria-pressed บอกว่าเลือกอยู่ไหม)
 function Pill({ active, onClick, children, label }: { active: boolean; onClick: () => void; children: ReactNode; label?: string }) {
   return (
     <button
@@ -35,6 +36,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+// แถวปุ่มกรองตามสถานะ ทุกสถานะ / รอดำเนินการ / กำลังดำเนินการ / เสร็จแล้ว
 export function StatusPills({
   value,
   onChange,
@@ -60,6 +62,7 @@ export function StatusPills({
   );
 }
 
+// แถวปุ่มกรองตามหมวดหมู่ กดซ้ำอันเดิม = ยกเลิกกรอง
 export function CategoryPills({
   categories,
   value,

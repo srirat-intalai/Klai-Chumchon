@@ -48,6 +48,7 @@ function validate(f: ReportFormData): Errors {
   return errs;
 }
 
+// ข้อความ error สีแดงใต้ช่องที่กรอกผิด
 function FieldError({ id, text }: { id: string; text?: string }) {
   if (!text) return null;
   return (
@@ -57,6 +58,7 @@ function FieldError({ id, text }: { id: string; text?: string }) {
   );
 }
 
+// ฟอร์มแจ้งเรื่อง ใช้ทั้งหน้าแจ้งใหม่และหน้าแก้ไข (ส่งค่าเริ่มต้นมาทาง initial)
 export default function ReportForm({ initial, oldImageUrl, submitText, pending, serverError, onSubmit }: Props) {
   const [form, setForm] = useState<ReportFormData>(initial || empty);
   const [errors, setErrors] = useState<Errors>({});
@@ -83,6 +85,7 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
     if (errors[field]) setErrors({ ...errors, [field]: undefined });
   }
 
+  // พิมพ์ในช่องข้อความแล้วเก็บค่าลง state พร้อมลบ error ของช่องนั้น
   function change(field: "title" | "description" | "location", value: string) {
     setForm({ ...form, [field]: value });
     clearError(field);
@@ -105,12 +108,14 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
     }
   }
 
+  // ปักหมุดใหม่ แล้วไปถาม Nominatim ว่าพิกัดนี้คือที่อยู่อะไร
   function setPin(lat: number, lng: number) {
     setForm((f) => ({ ...f, latitude: lat, longitude: lng, address: "" }));
     clearError("pin");
     lookupAddress(lat, lng);
   }
 
+  // ค้นหาสถานที่จากชื่อ (Nominatim) แล้วโชว์รายการให้เลือก
   async function runSearch() {
     const q = query.trim();
     if (q.length < 2) {
@@ -131,12 +136,14 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
     }
   }
 
+  // เลือกสถานที่จากผลค้นหา ย้ายหมุดไปตรงนั้น
   function pickPlace(p: PlaceResult) {
     setResults([]);
     setQuery(p.name || p.address);
     setPin(p.lat, p.lng);
   }
 
+  // เลือกไฟล์รูป เช็กชนิดกับขนาดก่อน (ไม่เกิน 5MB) แล้วทำรูปตัวอย่าง
   function pickFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -155,12 +162,14 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
     setPreview(URL.createObjectURL(file));
   }
 
+  // เอารูปที่เลือกออก
   function clearImage() {
     setForm({ ...form, image: null, removeImage: true });
     setPreview(null);
     if (fileRef.current) fileRef.current.value = "";
   }
 
+  // ใช้ GPS ของเครื่องหาตำแหน่งปัจจุบัน แล้วปักหมุดให้เลย
   function locateMe() {
     if (!navigator.geolocation) {
       setErrors({ ...errors, pin: "เบราว์เซอร์นี้ไม่รองรับการหาตำแหน่ง กรุณาคลิกบนแผนที่แทน" });
@@ -180,6 +189,7 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
     );
   }
 
+  // กดส่งฟอร์ม เช็กข้อมูลทุกช่องก่อน ถ้าผ่านค่อยส่งต่อไปให้หน้าที่เรียกใช้
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const errs = validate(form);

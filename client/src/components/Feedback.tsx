@@ -2,6 +2,7 @@ import { Inbox, RefreshCw, TriangleAlert } from "lucide-react";
 
 // โครงกระพริบระหว่างรอข้อมูล + กล่องแจ้ง error
 
+// กล่องเทา ๆ กระพริบ แทนการ์ด 1 ใบตอนกำลังโหลด
 export function CardSkeleton() {
   return (
     <div className="card bg-base-100 border border-base-300 p-5 space-y-3">
@@ -20,6 +21,7 @@ export function CardSkeleton() {
   );
 }
 
+// skeleton หลายใบเรียงเป็นตาราง ใช้ตอนโหลดรายการ
 export function GridSkeleton({ count = 6 }: { count?: number }) {
   const items = [];
   for (let i = 0; i < count; i++) {
@@ -28,6 +30,7 @@ export function GridSkeleton({ count = 6 }: { count?: number }) {
   return <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{items}</div>;
 }
 
+// skeleton ของหน้ารายละเอียด
 export function DetailSkeleton() {
   return (
     <div className="card bg-base-100 border border-base-300 p-6 space-y-4">
@@ -41,6 +44,7 @@ export function DetailSkeleton() {
   );
 }
 
+// skeleton ของตารางในหน้าจัดการระบบ
 export function TableSkeleton() {
   const rows = [];
   for (let i = 0; i < 6; i++) {
@@ -54,6 +58,7 @@ interface ErrorAlertProps {
   onRetry?: () => void;
 }
 
+// กล่องแจ้ง error สีแดง มีปุ่ม "ลองใหม่" ให้กดดึงข้อมูลอีกรอบ
 export function ErrorAlert({ message, onRetry }: ErrorAlertProps) {
   return (
     <div role="alert" className="alert alert-error">
@@ -72,6 +77,7 @@ export function ErrorAlert({ message, onRetry }: ErrorAlertProps) {
   );
 }
 
+// ข้อความตอนไม่มีข้อมูลเลย
 export function EmptyState({ text }: { text: string }) {
   return (
     <div className="text-center py-16 text-base-content/70">

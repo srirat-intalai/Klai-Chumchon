@@ -6,7 +6,8 @@ import { checkLogin, checkRegister } from "../validators/reportValidator.js";
 import { clearFails, minutesLocked, recordFail } from "../middlewares/loginLimiter.js";
 
 // ห้ามส่ง passwordHash กลับไปหน้าบ้านเด็ดขาด
-const publicUser = { id: true, name: true, email: true, phone: true, role: true, createdAt: true } as const;
+// ฟิลด์ผู้ใช้ที่ส่งกลับไปหน้าเว็บได้ (ห้ามส่ง password)
+const publicUser = { id: true, name: true, email: true, phone: true, role: true, createdAt: true };
 
 // POST /api/auth/register  สมัครได้แค่ role ประชาชน
 export async function register(req: Request, res: Response) {

@@ -11,6 +11,7 @@ interface Attempt {
 
 const attempts = new Map<string, Attempt>();
 
+// สร้างคีย์จาก ip + อีเมล ไว้นับจำนวนครั้งที่ล็อกอินผิด
 function makeKey(ip: string, email: string): string {
   return ip + "|" + email.toLowerCase();
 }
@@ -29,6 +30,7 @@ export function minutesLocked(ip: string, email: string): number {
   return Math.ceil((WINDOW_MS - passed) / 60000);
 }
 
+// ล็อกอินผิด +1 ครั้ง
 export function recordFail(ip: string, email: string) {
   const key = makeKey(ip, email);
   const a = attempts.get(key);
@@ -39,6 +41,7 @@ export function recordFail(ip: string, email: string) {
   }
 }
 
+// ล็อกอินถูกแล้ว ล้างตัวนับทิ้ง
 export function clearFails(ip: string, email: string) {
   attempts.delete(makeKey(ip, email));
 }

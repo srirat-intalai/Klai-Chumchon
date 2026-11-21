@@ -112,6 +112,7 @@ function pseudo(n: number): number {
   return x - Math.floor(x);
 }
 
+// ล้างข้อมูลเก่า แล้วใส่ผู้ใช้ 8 คน หมวด 6 หมวด เรื่อง 50 เรื่อง ประวัติสถานะ และคอมเมนต์
 async function main() {
   console.log("ล้างข้อมูลเก่า...");
   // ลบลูกก่อนแม่ ไม่งั้นติด foreign key

@@ -7,7 +7,8 @@ import { prisma } from "../lib/prisma.js";
 import { isRealImage, UPLOAD_DIR } from "../middlewares/upload.js";
 import { checkNote, checkReport, checkStatus, field, parseId } from "../validators/reportValidator.js";
 
-const userBrief = { select: { id: true, name: true, role: true } } as const;
+// เลือกเฉพาะข้อมูลผู้ใช้ที่ต้องโชว์ (ไม่เอารหัสผ่าน)
+const userBrief = { select: { id: true, name: true, role: true } };
 
 // ลบไฟล์รูปเก่า ถ้าลบไม่ได้ก็ช่างมัน ไม่ต้องให้ request พัง
 async function removeImage(imageUrl: string | null | undefined) {

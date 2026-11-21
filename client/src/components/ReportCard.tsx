@@ -47,7 +47,7 @@ export default function ReportCard({ report, distanceKm }: { report: Report; dis
             <span aria-hidden="true">·</span>
             <MessageCircle size={14} aria-hidden="true" className="shrink-0" />
             <span>
-              {report._count?.comments ?? 0}
+              {report._count ? report._count.comments : 0}
               <span className="sr-only"> ความคิดเห็น</span>
             </span>
           </p>

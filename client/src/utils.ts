@@ -1,5 +1,6 @@
 import { FILE_URL } from "./api/reportApi";
 
+// แปลงวันที่จาก server ให้เป็นแบบไทย เช่น 21 พ.ย. 2569 10:30
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("th-TH", {
     day: "numeric",
@@ -40,6 +41,7 @@ export function distanceKm(lat1: number, lng1: number, lat2: number, lng2: numbe
   return 6371 * 2 * Math.asin(Math.sqrt(a));
 }
 
+// แปลงระยะทางเป็นข้อความ ไม่ถึง 1 กม. โชว์เป็นเมตร
 export function formatDistance(km: number): string {
   if (km < 1) return `${Math.round(km * 1000)} ม.`;
   return `${km.toFixed(1)} กม.`;
@@ -47,6 +49,10 @@ export function formatDistance(km: number): string {
 
 // ตัวอักษรแรกของชื่อสำหรับ avatar: ข้ามสระหน้า (เ แ โ ใ ไ) เช่น "เจ้าหน้าที่" -> "จ"
 export function initialOf(name: string): string {
-  const trimmed = name.trim().replace(/^[เแโใไ]+/, "");
-  return trimmed.charAt(0) || name.trim().charAt(0);
+  const t = name.trim();
+  // ถ้าตัวแรกเป็นสระหน้า (เ แ โ ใ ไ) ให้เอาตัวถัดไปแทน
+  if (t.length > 1 && "เแโใไ".includes(t[0])) {
+    return t[1];
+  }
+  return t.charAt(0);
 }

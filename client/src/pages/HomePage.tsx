@@ -10,6 +10,7 @@ import { STATUS_COLOR } from "../utils";
 
 const noFilter = { search: "", status: "" as const, categoryId: 0 };
 
+// หน้าแรก: ข้อความแนะนำ ตัวเลข 3 สถานะ แผนที่ย่อ หมวดหมู่ และเรื่องล่าสุด
 export default function HomePage() {
   const reports = useReports(noFilter);
   const categories = useCategories();
@@ -114,7 +115,7 @@ export default function HomePage() {
                 <div className="card-body items-center text-center p-4 gap-1.5">
                   <CategoryIcon category={c} size={30} />
                   <span className="text-sm font-medium">{c.name}</span>
-                  <span className="text-xs text-base-content/70">{c._count?.reports ?? 0} เรื่อง</span>
+                  <span className="text-xs text-base-content/70">{c._count ? c._count.reports : 0} เรื่อง</span>
                 </div>
               </Link>
             ))}

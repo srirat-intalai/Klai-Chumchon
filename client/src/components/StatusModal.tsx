@@ -31,6 +31,7 @@ export default function StatusModal({ report, onClose }: Props) {
   const updateStatus = useUpdateStatus();
   const showToast = useUiStore((s) => s.showToast);
 
+  // กดยืนยันในกล่องเปลี่ยนสถานะ ส่งสถานะใหม่ + หมายเหตุไปที่ server
   function submit(e: FormEvent) {
     e.preventDefault();
     if (status === report.status) {

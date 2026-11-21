@@ -15,6 +15,7 @@ const roleColor: Record<Role, string> = {
   ADMIN: "badge-secondary",
 };
 
+// ป้ายสถานะ (รอดำเนินการ/กำลังดำเนินการ/เสร็จแล้ว) สีต่างกัน
 export function StatusBadge({ status }: { status: ReportStatus }) {
   return <span className={`status-pill ${statusColor[status]}`}>{STATUS_LABEL[status]}</span>;
 }
@@ -32,6 +33,7 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
   return <span className="text-sm text-base-content/70 whitespace-nowrap">{PRIORITY_LABEL[priority]}</span>;
 }
 
+// ป้ายบทบาท ประชาชน / เจ้าหน้าที่ / แอดมิน
 export function RoleBadge({ role }: { role: Role }) {
   return <span className={`badge badge-sm ${roleColor[role]} whitespace-nowrap`}>{ROLE_LABEL[role]}</span>;
 }

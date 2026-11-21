@@ -24,6 +24,7 @@ export function useMe() {
   };
 }
 
+// ล็อกอิน สำเร็จแล้วเก็บ token ลง store
 export function useLogin() {
   const setToken = useAuthStore((s) => s.setToken);
   const qc = useQueryClient();
@@ -37,6 +38,7 @@ export function useLogin() {
   });
 }
 
+// สมัครสมาชิก สำเร็จแล้วล็อกอินให้เลย
 export function useRegister() {
   const setToken = useAuthStore((s) => s.setToken);
   const qc = useQueryClient();
@@ -49,10 +51,12 @@ export function useRegister() {
   });
 }
 
+// ดึงรายชื่อผู้ใช้ทั้งหมด (แอดมินเท่านั้น)
 export function useUsers() {
   return useQuery({ queryKey: ["users"], queryFn: fetchUsers });
 }
 
+// แอดมินเปลี่ยนบทบาทผู้ใช้
 export function useUpdateRole() {
   const qc = useQueryClient();
   return useMutation({

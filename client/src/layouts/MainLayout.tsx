@@ -26,6 +26,7 @@ function mobileNavClass({ isActive }: { isActive: boolean }) {
   return isActive ? "font-semibold bg-secondary text-secondary-content" : "";
 }
 
+// โครงหน้าเว็บที่ใช้ร่วมกันทุกหน้า: แถบเมนูด้านบน + <Outlet /> ตรงกลาง + footer
 export default function MainLayout() {
   const theme = useUiStore((s) => s.theme);
   const toggleTheme = useUiStore((s) => s.toggleTheme);
@@ -50,6 +51,7 @@ export default function MainLayout() {
     return () => clearTimeout(timer);
   }, [toast, hideToast]);
 
+  // ออกจากระบบ ล้าง token แล้วกลับหน้าแรก
   function handleLogout() {
     closeDropdown();
     logout();
@@ -73,6 +75,7 @@ export default function MainLayout() {
   const mobileMenus = [...menus];
   if (user) mobileMenus.push({ to: "/my-reports", label: "เรื่องของฉัน" });
 
+  // วาดลิงก์เมนูจาก array (ใช้ทั้งเมนูจอใหญ่และเมนูมือถือ)
   function renderLinks(list: { to: string; label: string }[], mobile = false) {
     return list.map((m) => (
       <li key={m.to}>

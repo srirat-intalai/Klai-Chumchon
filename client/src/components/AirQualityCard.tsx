@@ -10,8 +10,16 @@ const LEVELS = [
   { max: Infinity, label: "มีผลกระทบต่อสุขภาพ", color: "#ef4444" },
 ];
 
+// หาว่าค่าฝุ่น PM2.5 อยู่ระดับไหน (ดีมาก ดี ปานกลาง เริ่มมีผล มีผล) ตามเกณฑ์ของกรมควบคุมมลพิษ
 function levelOf(pm25: number) {
-  return LEVELS.find((l) => pm25 <= l.max) ?? LEVELS[LEVELS.length - 1]!;
+  // ไล่ดูทีละระดับ ค่าฝุ่นไม่เกินระดับไหนก็เอาระดับนั้น
+  for (let i = 0; i < LEVELS.length; i++) {
+    if (pm25 <= LEVELS[i].max) {
+      return LEVELS[i];
+    }
+  }
+  // เกินทุกระดับ = ระดับสุดท้าย (อันตราย)
+  return LEVELS[LEVELS.length - 1];
 }
 
 // ค่าฝุ่น ณ ตำแหน่งที่แจ้ง (Open-Meteo ผ่าน /api/geo/air)
