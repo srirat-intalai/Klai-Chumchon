@@ -1,4 +1,5 @@
 import { FILE_URL } from "./api/reportApi";
+import type { ReportStatus } from "./types";
 
 // แปลงวันที่จาก server ให้เป็นแบบไทย เช่น 21 พ.ย. 2569 10:30
 export function formatDate(iso: string) {
@@ -40,11 +41,11 @@ export function imageSrc(path: string): string {
 // จุดกลางแผนที่: ม.กรุงเทพ วิทยาเขตรังสิต (ประมาณ)
 export const MAP_CENTER: [number, number] = [14.0387, 100.6023];
 
-export const STATUS_COLOR = {
+export const STATUS_COLOR: Record<ReportStatus, string> = {
   PENDING: "#ef4444", // แดง
   IN_PROGRESS: "#f59e0b", // เหลือง
   RESOLVED: "#22c55e", // เขียว
-} as const;
+};
 
 // ?next= หลังล็อกอิน: รับเฉพาะ path ในเว็บเรา (กัน "//evil.com" และ "/\\evil.com" ที่ browser แปลงเป็นเว็บอื่น)
 export function safeNext(value: string | null): string {

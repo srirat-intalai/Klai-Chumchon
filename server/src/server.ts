@@ -15,7 +15,7 @@ app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(express.json({ limit: "100kb" }));
 
 // เปิดให้หน้าบ้านโหลดรูปที่อัปโหลดได้ที่ /uploads/ชื่อไฟล์
-// nosniff = ให้ browser เชื่อ Content-Type ตามนามสกุลไฟล์ ไม่เดาเอง (กันไฟล์ปลอมที่แอบเป็น HTML)
+// บอก browser ว่าอย่าเดาชนิดไฟล์เอง กันคนแอบอัปไฟล์ปลอมที่จริง ๆ เป็นหน้าเว็บ
 app.use(
   "/uploads",
   express.static(UPLOAD_DIR, {

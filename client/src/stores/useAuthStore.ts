@@ -8,7 +8,7 @@ interface AuthState {
   logout: () => void;
 }
 
-// store เก็บ token กับข้อมูลคนที่ล็อกอินอยู่ เซฟลง localStorage รีเฟรชแล้วไม่หลุด
+// store เก็บ token เซฟลง localStorage รีเฟรชหน้าแล้วไม่หลุด
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({

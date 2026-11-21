@@ -55,7 +55,7 @@ export function StatusPills({
         <Pill key={s} active={value === s} onClick={() => onChange(value === s ? "" : s)}>
           <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: STATUS_COLOR[s] }} aria-hidden="true" />
           {STATUS_LABEL[s]}
-          {counts?.[s] !== undefined && <span className="tabular opacity-70">{counts[s]}</span>}
+          {counts && counts[s] !== undefined && <span className="tabular opacity-70">{counts[s]}</span>}
         </Pill>
       ))}
     </Row>

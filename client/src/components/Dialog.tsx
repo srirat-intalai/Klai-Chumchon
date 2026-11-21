@@ -10,15 +10,15 @@ interface Props {
   children: ReactNode;
 }
 
-// modal กลางของทั้งเว็บ ใช้ <dialog> ของ browser + showModal()
-// ได้มาฟรี: กด Esc ปิด, focus เข้าไปอยู่ใน modal และวนอยู่ข้างใน, พื้นหลังกด/Tab ไม่ได้,
-// ใส่ data-autofocus ให้ element ที่ควรได้ focus ก่อน (showModal จะทับ autoFocus ของ React)
+// กล่อง modal ที่ใช้ทั้งเว็บ ใช้แท็ก <dialog> ที่ browser มีให้อยู่แล้ว
+// ข้อดี: กด Esc ปิดได้ และกดข้างหลังไม่ได้ตอนกล่องเปิดอยู่
+// ช่องไหนอยากให้เคอร์เซอร์ไปอยู่ก่อน ให้ใส่ data-autofocus ไว้
 export default function Dialog({ labelledBy, describedBy, busy = false, onClose, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const dialog = ref.current;
-    // จำปุ่มที่เปิดไว้ ปิดแล้วคืน focus ให้เอง (React ถอด dialog ออกก่อน browser จะคืนให้)
+    // จำไว้ว่ากดปุ่มไหนเปิดกล่อง ปิดกล่องแล้วกลับไปที่ปุ่มนั้น
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (dialog && !dialog.open) dialog.showModal();
     dialog?.querySelector<HTMLElement>("[data-autofocus]")?.focus();
@@ -35,12 +35,12 @@ export default function Dialog({ labelledBy, describedBy, busy = false, onClose,
       aria-labelledby={labelledBy}
       aria-describedby={describedBy}
       onCancel={(e) => {
-        // ปุ่ม Esc: ให้ React เป็นคนตัดสินว่าจะปิดไหม
+        // กด Esc: ถ้ากำลังบันทึกอยู่ห้ามปิด
         e.preventDefault();
         if (!busy) onClose();
       }}
       onClick={(e) => {
-        // คลิกพื้นหลังนอกกล่อง (เป้าหมายคือตัว dialog เอง) = ปิด
+        // คลิกตรงพื้นหลังนอกกล่อง = ปิด
         if (e.target === ref.current && !busy) onClose();
       }}
     >

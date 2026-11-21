@@ -26,7 +26,7 @@ export const uploadImage = multer({
 }).single("image");
 
 // เช็กเนื้อไฟล์จริง ไม่เชื่อแค่ชนิดไฟล์ที่ browser บอกมา
-// ไฟล์รูปแต่ละแบบจะขึ้นต้นด้วยไบต์เฉพาะตัว (magic bytes) เช่น PNG ขึ้นต้นด้วย 89 50 4E 47
+// ไฟล์รูปแต่ละแบบ ไบต์แรก ๆ จะเหมือนกันเสมอ เช่น PNG ขึ้นต้นด้วย 89 50 4E 47 เลยเช็กตรงนี้
 export async function isRealImage(filePath: string): Promise<boolean> {
   const file = await fs.open(filePath, "r");
   const head = Buffer.alloc(12);
@@ -38,7 +38,7 @@ export async function isRealImage(filePath: string): Promise<boolean> {
 
   const isJpg = head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff;
   const isPng = head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47;
-  // WEBP = "RIFF" ????(ขนาด) "WEBP"
+  // WEBP ขึ้นต้นด้วย "RIFF" แล้วตามด้วย "WEBP"
   const isWebp = head.toString("ascii", 0, 4) === "RIFF" && head.toString("ascii", 8, 12) === "WEBP";
   return isJpg || isPng || isWebp;
 }

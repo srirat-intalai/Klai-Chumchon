@@ -4,8 +4,10 @@ import { useReports } from "../hooks/useReports";
 import { useUiStore } from "../stores/useUiStore";
 import ReportCard from "../components/ReportCard";
 import { EmptyState, ErrorAlert, GridSkeleton } from "../components/Feedback";
+import type { ReportFilters } from "../types";
 
-const noFilter = { search: "", status: "" as const, categoryId: 0 };
+// ไม่กรองอะไรเลย เอาทุกเรื่อง
+const noFilter: ReportFilters = { search: "", status: "", categoryId: 0 };
 
 // หน้าเรื่องที่ติดตาม (เอา id ที่บุ๊กมาร์กใน Zustand ไปกรองจากรายการทั้งหมด)
 export default function BookmarksPage() {
@@ -16,7 +18,7 @@ export default function BookmarksPage() {
   const saved = (reports.data || []).filter((r) => bookmarks.includes(r.id));
 
   // พอโหลดรายการครบ ค่อยลบ id ที่ไม่มีอยู่แล้วออกจาก Zustand
-  // ต้องข้ามตอนเป็น placeholder (ข้อมูลชั่วคราวจากตัวกรองอื่น) ไม่งั้นบุ๊กมาร์กจริงจะถูกลบ
+  // ถ้ายังเป็นข้อมูลชุดเก่าที่โชว์ค้างไว้ ห้ามลบ ไม่งั้นบุ๊กมาร์กจริงจะหายไปด้วย
   const ready = reports.data !== undefined && !reports.isPlaceholderData;
   useEffect(() => {
     if (ready && reports.data) pruneBookmarks(reports.data.map((r) => r.id));

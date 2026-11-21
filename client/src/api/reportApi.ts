@@ -36,7 +36,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = useAuthStore.getState().token;
   const headers = new Headers(options.headers);
   if (token) headers.set("Authorization", "Bearer " + token);
-  // FormData ให้ browser ใส่ Content-Type (boundary) เอง
+  // ส่งไฟล์ (FormData) ไม่ต้องใส่ Content-Type เอง browser ใส่ให้
   if (options.body && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }

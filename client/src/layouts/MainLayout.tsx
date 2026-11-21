@@ -8,7 +8,7 @@ import { useMe } from "../hooks/useAuth";
 import { RoleBadge } from "../components/Badges";
 import { initialOf } from "../utils";
 
-// DaisyUI dropdown เปิดอยู่ตราบที่ยังมี focus กดลิงก์แล้วต้อง blur ให้เมนูปิด
+// เมนู dropdown ของ DaisyUI จะปิดก็ต่อเมื่อเลิกเลือกมัน เลยต้องสั่ง blur หลังกดลิงก์
 function closeDropdown() {
   const el = document.activeElement;
   if (el instanceof HTMLElement) el.blur();

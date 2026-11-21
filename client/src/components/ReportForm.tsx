@@ -73,7 +73,7 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
   const fileRef = useRef<HTMLInputElement>(null);
   const categories = useCategories();
 
-  // คืนหน่วยความจำของ URL รูปตัวอย่างเมื่อเปลี่ยนรูป/ออกจากหน้า
+  // ลบรูปตัวอย่างเก่าทิ้งตอนเปลี่ยนรูปหรือออกจากหน้า ไม่ให้เปลืองเมมโมรี่
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
@@ -145,7 +145,10 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
 
   // เลือกไฟล์รูป เช็กชนิดกับขนาดก่อน (ไม่เกิน 5MB) แล้วทำรูปตัวอย่าง
   function pickFile(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    let file = null;
+    if (e.target.files && e.target.files.length > 0) {
+      file = e.target.files[0];
+    }
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
       setErrors({ ...errors, image: "รองรับเฉพาะรูป JPG, PNG หรือ WEBP" });

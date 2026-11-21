@@ -7,8 +7,10 @@ import CategoryIcon from "../components/CategoryIcon";
 import { ReportsMap } from "../components/MapView";
 import { ErrorAlert, GridSkeleton } from "../components/Feedback";
 import { STATUS_COLOR } from "../utils";
+import type { ReportFilters } from "../types";
 
-const noFilter = { search: "", status: "" as const, categoryId: 0 };
+// ไม่กรองอะไรเลย เอาทุกเรื่อง
+const noFilter: ReportFilters = { search: "", status: "", categoryId: 0 };
 
 // หน้าแรก: ข้อความแนะนำ ตัวเลข 3 สถานะ แผนที่ย่อ หมวดหมู่ และเรื่องล่าสุด
 export default function HomePage() {
@@ -35,7 +37,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-12">
-      {/* hero บนเวทีม่วงเข้ม เต็มความกว้างจอ: ซ้ายข้อความ+สถิติ ขวาแผนที่จริง */}
+      {/* ส่วนหัวพื้นม่วงเต็มจอ ซ้ายเป็นข้อความกับตัวเลข ขวาเป็นแผนที่ */}
       <section className="stage -mt-6 ml-[calc(50%-50vw)] w-screen">
         <div className="max-w-6xl mx-auto px-4 py-10 lg:py-14 grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
           <div className="lg:col-span-2 flex flex-col gap-6">
