@@ -33,60 +33,64 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="space-y-10">
-      {/* hero: ซ้ายข้อความ+สถิติ ขวาแผนที่จริง */}
-      <section className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
-        <div className="lg:col-span-2 flex flex-col justify-center gap-5">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
-              เห็นปัญหาในชุมชน
-              <br />
-              <span className="text-primary">แจ้งได้ในไม่กี่นาที</span>
-            </h1>
-            <p className="mt-3 text-base-content/80">
-              ถนนพัง ไฟดับ น้ำท่วม ขยะล้น ปักหมุดบนแผนที่ แนบรูป แล้วติดตามได้ว่าเจ้าหน้าที่ดำเนินการถึงไหนแล้ว
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Link to="/reports/new" className="btn btn-primary">
-              <Plus size={18} aria-hidden="true" /> แจ้งปัญหาใหม่
-            </Link>
-            <Link to="/map" className="btn btn-outline" onClick={clearFilters}>
-              <MapIcon size={18} aria-hidden="true" /> ดูแผนที่เต็ม
-            </Link>
-          </div>
-
-          {reports.isError ? (
-            <ErrorAlert message={reports.error.message} onRetry={() => reports.refetch()} />
-          ) : (
-            <div className="grid grid-cols-3 gap-3">
-              {stats.map((s) => (
-                <div key={s.label} className="bg-base-100 border border-base-300 rounded-box p-3">
-                  <p className="text-xs sm:text-sm text-base-content/70 flex items-center gap-1.5">
-                    <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} aria-hidden="true" />
-                    {s.label}
-                  </p>
-                  <p className="text-2xl sm:text-3xl font-bold mt-1">
-                    {reports.isLoading ? <span className="skeleton inline-block h-8 w-10" /> : s.value}
-                  </p>
-                </div>
-              ))}
+    <div className="space-y-12">
+      {/* hero บนเวทีม่วงเข้ม เต็มความกว้างจอ: ซ้ายข้อความ+สถิติ ขวาแผนที่จริง */}
+      <section className="stage -mt-6 ml-[calc(50%-50vw)] w-screen">
+        <div className="max-w-6xl mx-auto px-4 py-10 lg:py-14 grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <div>
+              <h1 className="text-4xl sm:text-5xl font-semibold leading-[1.15] text-bone">
+                เห็นปัญหาในชุมชน
+                <br />
+                แจ้งได้ใน<span className="emphasis">ไม่กี่นาที</span>
+              </h1>
+              <p className="mt-4 text-lg leading-relaxed text-bone/75 max-w-md">
+                ถนนพัง ไฟดับ น้ำท่วม ขยะล้น ปักหมุดบนแผนที่ แนบรูป แล้วติดตามได้ว่าเจ้าหน้าที่ดำเนินการถึงไหนแล้ว
+              </p>
             </div>
-          )}
-        </div>
 
-        <div className="lg:col-span-3 bg-base-100 border border-base-300 rounded-box p-2 min-h-72">
-          {reports.isLoading && <div className="skeleton h-80 lg:h-full w-full" />}
-          {reports.data && <ReportsMap reports={reports.data} height="h-80 lg:h-[420px]" />}
-          {reports.isError && (
-            <div className="h-80 flex items-center justify-center text-base-content/70">โหลดแผนที่ไม่สำเร็จ</div>
-          )}
+            <div className="flex flex-wrap gap-3">
+              <Link to="/reports/new" className="btn btn-lg border-0 bg-bone text-plum hover:bg-blush">
+                <Plus size={18} aria-hidden="true" /> แจ้งปัญหาใหม่
+              </Link>
+              <Link
+                to="/map"
+                className="btn btn-outline btn-lg border-bone/60 text-bone hover:bg-bone hover:text-plum hover:border-bone"
+                onClick={clearFilters}
+              >
+                <MapIcon size={18} aria-hidden="true" /> ดูแผนที่เต็ม
+              </Link>
+            </div>
+
+            {reports.isError ? (
+              <ErrorAlert message={reports.error.message} onRetry={() => reports.refetch()} />
+            ) : (
+              <ul className="flex flex-wrap gap-2" aria-label="จำนวนเรื่องตามสถานะ">
+                {stats.map((s) => (
+                  <li key={s.label} className="flex items-center gap-2 rounded-full bg-white/[0.08] border border-white/15 pl-3 pr-4 py-1.5">
+                    <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} aria-hidden="true" />
+                    <span className="text-sm text-bone/80">{s.label}</span>
+                    <span className="text-lg font-semibold text-bone tabular">
+                      {reports.isLoading ? <span className="skeleton inline-block h-5 w-6 align-middle" /> : s.value}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="lg:col-span-3 rounded-[10px] bg-white/[0.06] border border-white/15 p-2 min-h-72">
+            {reports.isLoading && <div className="skeleton h-80 lg:h-[420px] w-full" />}
+            {reports.data && <ReportsMap reports={reports.data} height="h-80 lg:h-[420px]" />}
+            {reports.isError && (
+              <div className="h-80 flex items-center justify-center text-bone/70">โหลดแผนที่ไม่สำเร็จ</div>
+            )}
+          </div>
         </div>
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-3">หมวดหมู่ปัญหา</h2>
+        <h2 className="text-2xl font-semibold mb-4">หมวดหมู่ปัญหา</h2>
         {categories.isLoading && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -105,7 +109,7 @@ export default function HomePage() {
                   clearFilters();
                   setCategoryId(c.id);
                 }}
-                className="card bg-base-100 border border-base-300 hover:border-primary hover:-translate-y-0.5 transition"
+                className="card bg-base-100 border border-base-300 hover:border-heather hover:bg-petal transition-colors"
               >
                 <div className="card-body items-center text-center p-4 gap-1.5">
                   <CategoryIcon category={c} size={30} />
@@ -119,9 +123,9 @@ export default function HomePage() {
       </section>
 
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-semibold">แจ้งล่าสุด</h2>
-          <Link to="/reports" className="link link-primary text-sm inline-flex items-center gap-1" onClick={clearFilters}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold">แจ้งล่าสุด</h2>
+          <Link to="/reports" className="link font-medium underline-offset-4 text-sm inline-flex items-center gap-1" onClick={clearFilters}>
             ดูทั้งหมด <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </div>

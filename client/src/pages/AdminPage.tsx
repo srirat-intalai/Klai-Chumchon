@@ -93,7 +93,7 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
                   <td>
                     {/* ปุ่มลบแยกออกไปท้ายสุด เว้นระยะ กันกดพลาด */}
                     <div className="flex items-center justify-end gap-2">
-                      <button className="btn btn-sm btn-primary btn-outline" onClick={() => setStatusTarget(r)}>
+                      <button className="btn btn-sm btn-ghost border border-base-300 hover:border-base-content/40" onClick={() => setStatusTarget(r)}>
                         <RefreshCw size={14} aria-hidden="true" />
                         <span className="hidden sm:inline">อัปเดตสถานะ</span>
                       </button>

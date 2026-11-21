@@ -65,7 +65,7 @@ export default function StatusModal({ report, onClose }: Props) {
             <label
               key={s}
               className={`flex items-center gap-3 rounded-box border p-3 cursor-pointer ${
-                status === s ? "border-primary bg-primary/5" : "border-base-300"
+                status === s ? "border-base-content/60 bg-secondary/60" : "border-base-300"
               } ${s === report.status ? "opacity-60" : ""}`}
             >
               <input

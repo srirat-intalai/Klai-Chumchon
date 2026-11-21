@@ -4,9 +4,9 @@ import type { Priority, ReportStatus, Role } from "../types";
 
 // สีแดง/เหลือง/เขียว ใช้กับ "สถานะ" อย่างเดียว ให้ตรงกับหมุดบนแผนที่
 const statusColor: Record<ReportStatus, string> = {
-  PENDING: "badge-error",
-  IN_PROGRESS: "badge-warning",
-  RESOLVED: "badge-success",
+  PENDING: "pending",
+  IN_PROGRESS: "in-progress",
+  RESOLVED: "resolved",
 };
 
 const roleColor: Record<Role, string> = {
@@ -16,7 +16,7 @@ const roleColor: Record<Role, string> = {
 };
 
 export function StatusBadge({ status }: { status: ReportStatus }) {
-  return <span className={`badge ${statusColor[status]} whitespace-nowrap`}>{STATUS_LABEL[status]}</span>;
+  return <span className={`status-pill ${statusColor[status]}`}>{STATUS_LABEL[status]}</span>;
 }
 
 // ความเร่งด่วนเป็นข้อความสีกลาง ๆ จะได้ไม่แย่งความสนใจกับสีสถานะ

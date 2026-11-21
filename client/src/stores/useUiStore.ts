@@ -4,7 +4,7 @@ import type { ReportStatus } from "../types";
 
 // Zustand เก็บแค่ state ฝั่งหน้าจอ ข้อมูลเรื่องที่แจ้งอยู่ใน TanStack Query อย่างเดียว
 interface UiState {
-  theme: "emerald" | "dim";
+  theme: "klai" | "klai-night";
   bookmarks: number[]; // เก็บแค่ id
   search: string;
   status: ReportStatus | "";
@@ -26,14 +26,14 @@ interface UiState {
 export const useUiStore = create<UiState>()(
   persist(
     (set) => ({
-      theme: "emerald",
+      theme: "klai",
       bookmarks: [],
       search: "",
       status: "",
       categoryId: 0,
       toast: null,
 
-      toggleTheme: () => set((s) => ({ theme: s.theme === "emerald" ? "dim" : "emerald" })),
+      toggleTheme: () => set((s) => ({ theme: s.theme === "klai" ? "klai-night" : "klai" })),
 
       toggleBookmark: (id) =>
         set((s) => ({
@@ -64,6 +64,13 @@ export const useUiStore = create<UiState>()(
       name: "klai-chumchon-ui",
       // บันทึกลง localStorage แค่ธีมกับบุ๊กมาร์ก
       partialize: (s) => ({ theme: s.theme, bookmarks: s.bookmarks }),
+      // v0 เก็บชื่อธีมเก่า (emerald / dim) แปลงเป็นชื่อธีมใหม่
+      version: 1,
+      migrate: (persisted, version) => {
+        const state = (persisted ?? {}) as { theme?: string; bookmarks?: number[] };
+        if (version < 1) state.theme = state.theme === "dim" ? "klai-night" : "klai";
+        return state as Pick<UiState, "theme" | "bookmarks">;
+      },
     }
   )
 );

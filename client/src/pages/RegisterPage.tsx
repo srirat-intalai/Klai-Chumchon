@@ -111,7 +111,7 @@ export default function RegisterPage() {
 
           <p className="text-sm text-center">
             มีบัญชีแล้ว?{" "}
-            <Link to={`/login?next=${encodeURIComponent(next)}`} className="link link-primary">
+            <Link to={`/login?next=${encodeURIComponent(next)}`} className="link font-medium underline-offset-4">
               เข้าสู่ระบบ
             </Link>
           </p>
