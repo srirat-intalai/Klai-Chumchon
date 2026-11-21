@@ -36,7 +36,7 @@ export default function MapPage() {
       {reports.isLoading && <div className="skeleton h-[60vh] w-full" />}
       {reports.data && (
         <div className="bg-base-100 border border-base-300 rounded-box p-2">
-          <ReportsMap reports={reports.data} />
+          <ReportsMap reports={reports.data} scrollZoom />
         </div>
       )}
     </div>

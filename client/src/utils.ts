@@ -11,6 +11,26 @@ export function formatDate(iso: string) {
   });
 }
 
+// บอกว่าผ่านมานานแค่ไหนแล้ว เช่น "5 นาทีที่แล้ว" "3 วันที่แล้ว"
+export function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "เมื่อสักครู่";
+  if (minutes < 60) return minutes + " นาทีที่แล้ว";
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + " ชั่วโมงที่แล้ว";
+  const days = Math.floor(hours / 24);
+  if (days < 30) return days + " วันที่แล้ว";
+  // นานกว่าเดือน โชว์วันที่ไปเลย
+  return formatDate(iso);
+}
+
+// นับว่าเรื่องค้างมากี่วันแล้ว (ใช้ในหน้าจัดการ)
+export function daysSince(iso: string): number {
+  const diff = Date.now() - new Date(iso).getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
 // imageUrl จาก server เป็น path เช่น /uploads/xxx.jpg ต้องเติมโดเมน server ข้างหน้า
 export function imageSrc(path: string): string {
   if (path.startsWith("http")) return path;

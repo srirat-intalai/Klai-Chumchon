@@ -34,12 +34,14 @@ const TILE_CREDIT = '&copy; <a href="https://www.openstreetmap.org/copyright">Op
 interface ReportsMapProps {
   reports: Report[];
   height?: string;
+  // ซูมด้วยล้อเมาส์ได้ไหม (ปิดไว้ในแผนที่ที่ฝังในหน้า ไม่งั้นเลื่อนหน้าแล้วแผนที่ซูมแทน)
+  scrollZoom?: boolean;
 }
 
 // แผนที่รวมทุกเรื่อง หมุดสีตามสถานะ กดหมุดแล้วมี popup ลิงก์ไปหน้ารายละเอียด
-export function ReportsMap({ reports, height = "h-[60vh]" }: ReportsMapProps) {
+export function ReportsMap({ reports, height = "h-[60vh]", scrollZoom = false }: ReportsMapProps) {
   return (
-    <MapContainer center={MAP_CENTER} zoom={14} scrollWheelZoom className={`${height} w-full rounded-box z-0`}>
+    <MapContainer center={MAP_CENTER} zoom={14} scrollWheelZoom={scrollZoom} className={`${height} w-full rounded-box z-0`}>
       <TileLayer url={TILE_URL} attribution={TILE_CREDIT} />
       {reports.map((r) => (
         <Marker key={r.id} position={[r.latitude, r.longitude]} icon={icons[r.status]}>

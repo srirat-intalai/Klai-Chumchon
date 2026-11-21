@@ -59,6 +59,8 @@ export async function getReports(req: Request, res: Response) {
       category: true,
       reporter: userBrief,
       _count: { select: { comments: true } },
+      // เอาประวัติสถานะอันล่าสุดมาด้วย 1 อัน ไว้โชว์บนการ์ด "เรื่องของฉัน" กับหน้าจัดการ
+      statusLogs: { take: 1, orderBy: { createdAt: "desc" }, include: { changedBy: userBrief } },
     },
     orderBy: { createdAt: "desc" },
   });

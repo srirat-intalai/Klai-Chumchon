@@ -30,7 +30,12 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
       </span>
     );
   }
-  return <span className="text-sm text-base-content/70 whitespace-nowrap">{PRIORITY_LABEL[priority]}</span>;
+  // "ปานกลาง" อยู่เดี่ยว ๆ บนการ์ดแล้วไม่รู้ว่าหมายถึงอะไร เลยเติมคำว่าเร่งด่วนข้างหน้า
+  let text = PRIORITY_LABEL[priority];
+  if (priority === "MEDIUM") {
+    text = "เร่งด่วนปานกลาง";
+  }
+  return <span className="text-sm text-base-content/70 whitespace-nowrap">{text}</span>;
 }
 
 // ป้ายบทบาท ประชาชน / เจ้าหน้าที่ / แอดมิน

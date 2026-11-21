@@ -166,7 +166,9 @@ export default function ReportDetailPage() {
                       </button>
                     )}
                   </div>
-                  {latest.note && <p className="leading-relaxed">“{latest.note}”</p>}
+                  {/* ยังไม่มีเจ้าหน้าที่รับเรื่อง บอกตรง ๆ ไม่ต้องโชว์ข้อความระบบซ้ำ */}
+                  {latest.fromStatus === null && <p className="leading-relaxed">รอเจ้าหน้าที่รับเรื่อง</p>}
+                  {latest.fromStatus !== null && latest.note && <p className="leading-relaxed">“{latest.note}”</p>}
                   <p className="text-sm text-base-content/80 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="inline-flex items-center gap-1.5">
                       {latest.changedBy.name} <RoleBadge role={latest.changedBy.role} />
@@ -175,6 +177,13 @@ export default function ReportDetailPage() {
                     <span>{formatDate(latest.createdAt)}</span>
                   </p>
                 </section>
+              )}
+
+              {/* เผื่อเรื่องที่ไม่มีประวัติเลย เจ้าหน้าที่ยังต้องกดเปลี่ยนสถานะได้ */}
+              {!latest && isStaff && (
+                <button className="btn btn-primary w-full sm:w-auto self-start" onClick={() => setShowStatus(true)}>
+                  อัปเดตสถานะ
+                </button>
               )}
 
               <p className="whitespace-pre-line leading-relaxed">{r.description}</p>

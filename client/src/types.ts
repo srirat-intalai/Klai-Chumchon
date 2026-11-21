@@ -61,6 +61,8 @@ export interface Report {
   createdAt: string;
   updatedAt: string;
   _count?: { comments: number };
+  // หน้ารายการได้มาแค่อันล่าสุด 1 อัน
+  statusLogs?: StatusLog[];
 }
 
 // หน้า detail ได้คอมเมนต์กับประวัติสถานะมาด้วย

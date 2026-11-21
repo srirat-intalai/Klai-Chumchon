@@ -26,7 +26,7 @@ export default function BookmarksPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold">เรื่องที่ติดตาม</h1>
-        <p className="text-base-content/70 text-sm">บันทึกไว้ในเครื่องนี้ (LocalStorage) ไม่ต้องสมัครสมาชิก</p>
+        <p className="text-base-content/70 text-sm">จำไว้ในเครื่องนี้ ไม่ต้องสมัครสมาชิกก็ใช้ได้</p>
       </div>
 
       {reports.isLoading && <GridSkeleton count={3} />}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Pencil, RefreshCw, Trash2 } from "lucide-react";
-import { useDeleteReport, useReports } from "../hooks/useReports";
+import { Pencil, RefreshCw, Search, Trash2 } from "lucide-react";
+import { useCategories, useDeleteReport, useReports } from "../hooks/useReports";
 import { useMe, useUpdateRole, useUsers } from "../hooks/useAuth";
 import { useUiStore } from "../stores/useUiStore";
 import { PriorityBadge, RoleBadge, StatusBadge } from "../components/Badges";
@@ -9,18 +9,25 @@ import { CategoryLabel } from "../components/CategoryIcon";
 import StatusModal from "../components/StatusModal";
 import { EmptyState, ErrorAlert, TableSkeleton } from "../components/Feedback";
 import ConfirmModal from "../components/ConfirmModal";
-import { StatusPills } from "../components/FilterPills";
+import { CategoryPills, StatusPills } from "../components/FilterPills";
 import { ROLE_LABEL } from "../types";
 import type { Report, ReportStatus, Role } from "../types";
-import { formatDate } from "../utils";
+import { daysSince, formatDate } from "../utils";
 
-// แท็บจัดการเรื่อง: ตาราง (จอใหญ่) / การ์ด (มือถือ) พร้อมปุ่มอัปเดตสถานะ แก้ไข ลบ
+// ลำดับความเร่งด่วน เลขน้อย = ต้องทำก่อน
+const PRIORITY_ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+
+// แท็บจัดการเรื่อง = คิวงานของเจ้าหน้าที่
+// เปิดมาเห็น "รอดำเนินการ" ก่อน เรียงเร่งด่วนสุดขึ้นบน ถ้าเร่งด่วนเท่ากันเรื่องที่ค้างนานกว่าขึ้นก่อน
 function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
-  const [statusFilter, setStatusFilter] = useState<ReportStatus | "">("");
+  const [statusFilter, setStatusFilter] = useState<ReportStatus | "">("PENDING");
+  const [categoryId, setCategoryId] = useState(0);
+  const [keyword, setKeyword] = useState("");
   const [target, setTarget] = useState<Report | null>(null);
   const [statusTarget, setStatusTarget] = useState<Report | null>(null);
 
-  const reports = useReports({ search: "", status: statusFilter, categoryId: 0 }, true);
+  const reports = useReports({ search: "", status: statusFilter, categoryId: categoryId }, true);
+  const categories = useCategories();
   const deleteReport = useDeleteReport();
   const showToast = useUiStore((s) => s.showToast);
   const removeBookmark = useUiStore((s) => s.removeBookmark);
@@ -42,18 +49,63 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
     });
   }
 
+  // ค้นหาจากหัวข้อ / จุดสังเกต / ชื่อผู้แจ้ง (กรองในหน้าเลย ข้อมูลโหลดมาแล้ว)
+  const list: Report[] = [];
+  if (reports.data) {
+    const word = keyword.trim().toLowerCase();
+    for (let i = 0; i < reports.data.length; i++) {
+      const r = reports.data[i];
+      const text = (r.title + " " + r.location + " " + r.reporter.name).toLowerCase();
+      if (word === "" || text.includes(word)) {
+        list.push(r);
+      }
+    }
+  }
+  // เรียงเป็นคิว: เร่งด่วนก่อน แล้วค่อยเรื่องที่เก่ากว่า
+  list.sort(function (a, b) {
+    const p = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+    if (p !== 0) return p;
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+
+  // ข้อความบอกว่าเรื่องค้างมากี่วัน (เสร็จแล้วไม่ต้องบอก)
+  function ageText(r: Report) {
+    if (r.status === "RESOLVED") return "";
+    const d = daysSince(r.createdAt);
+    if (d < 1) return "เข้ามาวันนี้";
+    return "ค้าง " + d + " วัน";
+  }
+
   return (
     <div className="space-y-4">
+      <label className="input input-bordered w-full sm:max-w-md flex items-center gap-2">
+        <Search size={16} aria-hidden="true" className="opacity-60" />
+        <input
+          type="search"
+          className="grow"
+          placeholder="ค้นหาหัวข้อ จุดสังเกต หรือชื่อผู้แจ้ง"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          aria-label="ค้นหาเรื่องในคิว"
+        />
+      </label>
       <StatusPills value={statusFilter} onChange={setStatusFilter} />
+      <CategoryPills categories={categories.data} value={categoryId} onChange={setCategoryId} />
+
+      {reports.data && (
+        <p className="text-sm text-base-content/75">
+          {list.length} เรื่อง · เรียงเร่งด่วนก่อน แล้วตามเรื่องที่ค้างนานสุด
+        </p>
+      )}
 
       {reports.isLoading && <TableSkeleton />}
       {reports.isError && <ErrorAlert message={reports.error.message} onRetry={() => reports.refetch()} />}
-      {reports.data && reports.data.length === 0 && <EmptyState text="ไม่มีเรื่องในสถานะนี้" />}
+      {reports.data && list.length === 0 && <EmptyState text="ไม่มีเรื่องตรงกับที่เลือก" />}
 
       {/* มือถือ: การ์ดเรียงลง ปุ่มใหญ่กดง่าย (เจ้าหน้าที่ภาคสนาม) */}
-      {reports.data && reports.data.length > 0 && (
+      {list.length > 0 && (
         <ul className="sm:hidden space-y-3" aria-label="รายการเรื่องที่แจ้ง">
-          {reports.data.map((r) => (
+          {list.map((r) => (
             <li key={r.id} className="bg-base-100 border border-base-300 rounded-box p-4 space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <Link to={`/reports/${r.id}`} className="font-semibold leading-snug hover:underline underline-offset-4">
@@ -65,11 +117,12 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
                 <CategoryLabel category={r.category} />
                 <PriorityBadge priority={r.priority} />
               </div>
-              <p className="text-sm text-base-content/70">
+              <p className="text-sm text-base-content/75">
                 {r.reporter.name} · {formatDate(r.createdAt)}
+                {ageText(r) !== "" && <span className="font-semibold text-base-content whitespace-nowrap"> · {ageText(r)}</span>}
               </p>
               <div className="flex items-center gap-2">
-                <button className="btn btn-neutral flex-1 h-11 min-h-11" onClick={() => setStatusTarget(r)}>
+                <button className="btn btn-outline flex-1 h-11 min-h-11" onClick={() => setStatusTarget(r)}>
                   <RefreshCw size={16} aria-hidden="true" /> อัปเดตสถานะ
                 </button>
                 <Link to={`/reports/${r.id}/edit`} className="btn btn-square btn-ghost border border-base-300 size-11" aria-label={`แก้ไขเรื่อง #${r.id}`}>
@@ -91,7 +144,7 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
       )}
 
       {/* จอใหญ่: ตาราง */}
-      {reports.data && reports.data.length > 0 && (
+      {list.length > 0 && (
         <div className="hidden sm:block overflow-x-auto bg-base-100 rounded-box border border-base-300">
           <table className="table table-zebra">
             <thead>
@@ -105,15 +158,16 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
               </tr>
             </thead>
             <tbody>
-              {reports.data.map((r) => (
+              {list.map((r) => (
                 <tr key={r.id}>
                   <td>{r.id}</td>
                   <td className="min-w-48">
                     <Link to={`/reports/${r.id}`} className="link link-hover font-medium">
                       {r.title}
                     </Link>
-                    <div className="text-xs text-base-content/70">
+                    <div className="text-xs text-base-content/75">
                       {r.reporter.name} · {formatDate(r.createdAt)}
+                      {ageText(r) !== "" && <span className="font-semibold text-base-content whitespace-nowrap"> · {ageText(r)}</span>}
                     </div>
                   </td>
                   <td className="hidden md:table-cell whitespace-nowrap">
@@ -128,7 +182,7 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
                   <td>
                     {/* ปุ่มลบแยกออกไปท้ายสุด เว้นระยะ กันกดพลาด */}
                     <div className="flex items-center justify-end gap-2">
-                      <button className="btn btn-sm btn-ghost border border-base-300 hover:border-base-content/40" onClick={() => setStatusTarget(r)}>
+                      <button className="btn btn-sm btn-outline" onClick={() => setStatusTarget(r)}>
                         <RefreshCw size={14} aria-hidden="true" />
                         <span className="hidden sm:inline">อัปเดตสถานะ</span>
                       </button>
@@ -180,7 +234,10 @@ function UsersTab({ myId }: { myId: number }) {
   const showToast = useUiStore((s) => s.showToast);
 
   // เลือกบทบาทใหม่จาก dropdown แล้วส่งไป server
-  function changeRole(id: number, role: Role) {
+  function changeRole(id: number, name: string, role: Role) {
+    // ถามก่อน กันเผลอเลือกผิด (เปลี่ยนสิทธิ์แล้วมีผลทันที)
+    const ok = window.confirm("เปลี่ยน " + name + " เป็น " + ROLE_LABEL[role] + " ใช่ไหม?");
+    if (!ok) return;
     updateRole.mutate(
       { id, role },
       {
@@ -223,7 +280,7 @@ function UsersTab({ myId }: { myId: number }) {
                     className="select select-bordered select-xs"
                     value={u.role}
                     disabled={updateRole.isPending}
-                    onChange={(e) => changeRole(u.id, e.target.value as Role)}
+                    onChange={(e) => changeRole(u.id, u.name, e.target.value as Role)}
                   >
                     <option value="CITIZEN">{ROLE_LABEL.CITIZEN}</option>
                     <option value="STAFF">{ROLE_LABEL.STAFF}</option>

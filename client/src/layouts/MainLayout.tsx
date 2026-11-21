@@ -61,25 +61,25 @@ export default function MainLayout() {
     navigate("/");
   }
 
-  // เมนูหลัก ("เรื่องของฉัน" อยู่ในเมนู avatar)
+  // เมนูหลัก ล็อกอินแล้วมี "เรื่องของฉัน" เพิ่ม จะได้กดติดตามเรื่องตัวเองได้เลย
   const menus = [
     { to: "/", label: "หน้าแรก" },
     { to: "/reports", label: "เรื่องที่แจ้ง" },
     { to: "/map", label: "แผนที่" },
     { to: "/bookmarks", label: "ที่ติดตาม" },
-    { to: "/about", label: "เกี่ยวกับเรา" },
   ];
+  if (user) menus.push({ to: "/my-reports", label: "เรื่องของฉัน" });
+  menus.push({ to: "/about", label: "เกี่ยวกับเรา" });
   if (user && user.role !== "CITIZEN") menus.push({ to: "/admin", label: "จัดการระบบ" });
 
-  // เมนูมือถือใส่ครบทุกหน้า เพราะไม่มีที่อื่นให้กด
-  const mobileMenus = [...menus];
-  if (user) mobileMenus.push({ to: "/my-reports", label: "เรื่องของฉัน" });
+  // เมนูมือถือใช้ชุดเดียวกัน
+  const mobileMenus = menus;
 
   // วาดลิงก์เมนูจาก array (ใช้ทั้งเมนูจอใหญ่และเมนูมือถือ)
   function renderLinks(list: { to: string; label: string }[], mobile = false) {
     return list.map((m) => (
       <li key={m.to}>
-        <NavLink to={m.to} end={m.to === "/"} className={mobile ? mobileNavClass : navClass} onClick={closeDropdown}>
+        <NavLink to={m.to} end={m.to === "/" || m.to === "/reports"} className={mobile ? mobileNavClass : navClass} onClick={closeDropdown}>
           {m.label}
           {m.to === "/bookmarks" && bookmarkCount > 0 && (
             <span className="badge badge-sm border-0 bg-bone text-plum tabular">{bookmarkCount}</span>
