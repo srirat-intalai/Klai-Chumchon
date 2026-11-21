@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, MapPinned, Menu, Moon, Plus, Sun } from "lucide-react";
+import { LogOut, Menu, Moon, Plus, Sun } from "lucide-react";
 import { useUiStore } from "../stores/useUiStore";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useMe } from "../hooks/useAuth";
@@ -102,7 +102,8 @@ export default function MainLayout() {
             </ul>
           </div>
           <Link to="/" className="btn btn-ghost border-0 text-bone hover:bg-white/10 text-base sm:text-xl gap-1.5 px-1 sm:px-2">
-            <MapPinned size={22} className="text-blush" aria-hidden="true" />
+            {/* โลโก้กลุ่ม พื้นรูปเป็นสีขาว เลยใส่ในวงกลมขาวจะได้กลืนกัน */}
+            <img src="/logo.png" alt="" width={36} height={36} className="size-8 sm:size-9 rounded-full bg-white p-0.5" />
             <span className="font-display">
               <span className="font-semibold">Klai</span> <span className="font-normal text-blush">Chumchon</span>
             </span>
@@ -177,7 +178,7 @@ export default function MainLayout() {
         <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm">
           <div className="space-y-2">
             <p className="flex items-center gap-2 text-lg font-display font-semibold">
-              <MapPinned size={20} className="text-blush" aria-hidden="true" /> Klai <span className="font-normal text-blush">Chumchon</span>
+              <img src="/logo.png" alt="" width={40} height={40} className="size-10 rounded-full bg-white p-0.5" /> Klai <span className="font-normal text-blush">Chumchon</span>
             </p>
             <p className="opacity-80">แจ้งปัญหาใกล้ตัว ติดตามได้ว่าเรื่องของชุมชนไปถึงไหนแล้ว</p>
           </div>
