@@ -3,7 +3,7 @@ import { Inbox, RefreshCw, TriangleAlert } from "lucide-react";
 // โครงกระพริบระหว่างรอข้อมูล + กล่องแจ้ง error
 
 // กล่องเทา ๆ กระพริบ แทนการ์ด 1 ใบตอนกำลังโหลด
-export function CardSkeleton() {
+function CardSkeleton() {
   return (
     <div className="card bg-base-100 border border-base-300 p-5 space-y-3">
       <div className="flex justify-between">

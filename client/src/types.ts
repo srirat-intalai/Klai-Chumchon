@@ -13,7 +13,7 @@ export interface User {
 }
 
 // ข้อมูลผู้ใช้แบบย่อที่ติดมากับเรื่อง/คอมเมนต์/log
-export interface UserBrief {
+interface UserBrief {
   id: number;
   name: string;
   role: Role;
