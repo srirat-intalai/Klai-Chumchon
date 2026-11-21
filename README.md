@@ -22,14 +22,13 @@ CS319 Internet Programming I · Final Project · สถาปัตยกรร�
 | Server Cache | TanStack Query v5 |
 | Backend | Node.js, Express 5 (TypeScript), cors, dotenv, express.json(), JWT, bcryptjs, multer |
 | Database | PostgreSQL + Prisma ORM 7 (adapter-pg) |
-| API ภายนอก | Nominatim (OpenStreetMap) แปลงพิกัด/ค้นหาสถานที่, Open-Meteo Air Quality ค่าฝุ่น PM2.5 (เรียกผ่าน server ไม่ต้องใช้ API key) |
+| API ภายนอก | Nominatim (OpenStreetMap) แปลงพิกัดเป็นที่อยู่และค้นหาสถานที่ (เรียกผ่าน server ไม่ต้องใช้ API key) |
 
 ## ฟีเจอร์หลัก
 
 - **แผนที่ Leaflet:** หมุดทุกเรื่องแยกสีตามสถานะ (แดง = รอดำเนินการ, เหลือง = กำลังแก้ไข, เขียว = เสร็จสิ้น) คลิกหมุดจะเห็นสรุปและลิงก์ไปหน้ารายละเอียด
 - **แจ้งปัญหา:** ปักหมุดบนแผนที่หรือกดใช้ตำแหน่งปัจจุบัน และแนบรูปได้ (JPG/PNG/WEBP ไม่เกิน 5MB ตรวจจากเนื้อไฟล์จริง)
 - **ที่อยู่อัตโนมัติ + ค้นหาสถานที่ (Nominatim):** ปักหมุดแล้วระบบแปลงพิกัดเป็นที่อยู่ให้เอง หรือพิมพ์ชื่อสถานที่เพื่อเลื่อนแผนที่ไปหา
-- **คุณภาพอากาศ (Open-Meteo):** หน้ารายละเอียดแสดงค่า PM2.5 / PM10 ณ จุดที่แจ้ง พร้อมระดับตามเกณฑ์กรมควบคุมมลพิษ
 - **ตัวกรองแบบ pill + เรียง "ใกล้ฉัน":** กรองสถานะและหมวดหมู่ด้วยการกดครั้งเดียว (ใช้ร่วมกันหน้ารายการและแผนที่) และเรียงเรื่องจากใกล้ไปไกลตามตำแหน่งของผู้ใช้ พร้อมบอกระยะห่าง
 - **3 Role:** ประชาชน / เจ้าหน้าที่ / แอดมิน ล็อกอินด้วยอีเมลและรหัสผ่าน (เก็บแบบ bcrypt hash) ใช้ JWT ยืนยันตัวตน
 - **StatusLog:** ทุกครั้งที่เปลี่ยนสถานะจะบันทึกว่าใครเปลี่ยน เปลี่ยนจากอะไรเป็นอะไร และหมายเหตุ แสดงเป็นไทม์ไลน์ในหน้ารายละเอียด
@@ -71,7 +70,7 @@ Klai-Chumchon/
 │       ├── hooks/                  # useReports.ts, useAuth.ts (useQuery / useMutation)
 │       ├── stores/                 # useUiStore.ts, useAuthStore.ts (Zustand)
 │       ├── layouts/MainLayout.tsx
-│       ├── components/             # MapView, ReportCard, ReportForm, RequireAuth, Badges, Feedback, ConfirmModal, AirQualityCard
+│       ├── components/             # MapView, ReportCard, ReportForm, RequireAuth, Badges, Feedback, ConfirmModal
 │       ├── pages/                  # Home, ReportList, ReportDetail, New, Edit, Map, MyReports,
 │       │                           # Bookmarks, Admin, About, Login, Register, NotFound
 │       ├── router.tsx
@@ -131,7 +130,6 @@ Klai-Chumchon/
 | DELETE | `/api/comments/:id` | เจ้าของ/แอดมิน | ลบความคิดเห็น | 200 / 403 / 404 |
 | GET | `/api/geo/reverse?lat=&lng=` | - | พิกัด → ที่อยู่ (Nominatim) | 200 / 400 / 502 |
 | GET | `/api/geo/search?q=` | - | ค้นหาสถานที่ในไทย (Nominatim) | 200 / 400 / 502 |
-| GET | `/api/geo/air?lat=&lng=` | - | ค่าฝุ่น PM2.5 / PM10 ปัจจุบัน (Open-Meteo) | 200 / 400 / 502 |
 
 ทุก response ใช้รูปแบบ `{ success, message?, data? }` ข้อมูลไม่ผ่าน validation จะได้ 400 พร้อม `errors`
 
@@ -148,7 +146,7 @@ Klai-Chumchon/
 | 20–23 | โหมดมืด, Skeleton ตอนโหลด, Error Alert, Server ไม่ตอบ |
 | 24 | Schema database (Supabase Schema Visualizer) 5 ตาราง + _prisma_migrations พร้อมความสัมพันธ์ FK |
 | 25–26 | Prisma Studio: ตาราง Report, ตาราง StatusLog |
-| 27–29 | (API ภายนอก) ค้นหาสถานที่, ที่อยู่ขึ้นเองหลังปักหมุด (Nominatim), ค่าฝุ่น PM2.5 ในหน้ารายละเอียด (Open-Meteo) |
+| 27–28 | (API ภายนอก) ค้นหาสถานที่, ที่อยู่ขึ้นเองหลังปักหมุด (Nominatim) |
 
 ## วิธีติดตั้งและรัน
 

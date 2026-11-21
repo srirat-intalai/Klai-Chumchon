@@ -143,10 +143,3 @@ export interface PlaceResult {
   lat: number;
   lng: number;
 }
-
-export interface AirQuality {
-  pm25: number | null;
-  pm10: number | null;
-  aqi: number | null;
-  time: string;
-}

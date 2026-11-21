@@ -1,7 +1,6 @@
 import { useAuthStore } from "../stores/useAuthStore";
 import type {
   ApiResponse,
-  AirQuality,
   AuthResult,
   Category,
   Comment,
@@ -163,7 +162,7 @@ export function deleteComment(id: number): Promise<void> {
   return request<void>(`/comments/${id}`, { method: "DELETE" });
 }
 
-// ---------- API ภายนอก (server เราเป็นตัวกลางเรียก Nominatim / Open-Meteo) ----------
+// ---------- API ภายนอก (server เราเป็นตัวกลางเรียก Nominatim) ----------
 
 // ต่อพิกัดเป็น query string ?lat=..&lng=..
 function coordsQuery(lat: number, lng: number): string {
@@ -179,9 +178,4 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string |
 // ค้นหาสถานที่จากชื่อ
 export function searchPlaces(q: string): Promise<PlaceResult[]> {
   return request<PlaceResult[]>("/geo/search?" + new URLSearchParams({ q }).toString());
-}
-
-// ค่าฝุ่น PM2.5 ตรงพิกัดนั้น (Open-Meteo)
-export function fetchAirQuality(lat: number, lng: number): Promise<AirQuality> {
-  return request<AirQuality>("/geo/air?" + coordsQuery(lat, lng));
 }

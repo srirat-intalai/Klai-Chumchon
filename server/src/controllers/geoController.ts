@@ -2,11 +2,9 @@ import type { Request, Response } from "express";
 
 // ---------- เรียก API ภายนอก ----------
 // Nominatim (OpenStreetMap): แปลงพิกัด <-> ที่อยู่  https://nominatim.org/release-docs/latest/api/Overview/
-// Open-Meteo Air Quality: ค่าฝุ่น PM2.5 / PM10      https://open-meteo.com/en/docs/air-quality-api
 // หน้าบ้านเรียกผ่าน server เราเท่านั้น เพราะ Nominatim กำหนดให้ส่ง User-Agent และยิงได้ไม่เกิน 1 ครั้ง/วินาที
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org";
-const AIR_URL = "https://air-quality-api.open-meteo.com/v1/air-quality";
 const USER_AGENT = "KlaiChumchon/1.0 (CS319 student project)";
 const TIMEOUT_MS = 8000;
 
@@ -151,41 +149,5 @@ export async function searchPlaces(req: Request, res: Response) {
     res.json({ success: true, data });
   } catch (err) {
     externalError(res, err, "สถานที่");
-  }
-}
-
-interface OpenMeteoAir {
-  current?: { time: string; pm2_5: number | null; pm10: number | null; us_aqi: number | null };
-}
-
-// GET /api/geo/air?lat=..&lng=..  ค่าฝุ่นปัจจุบันที่ตำแหน่งนั้น
-export async function getAirQuality(req: Request, res: Response) {
-  const c = readCoords(req);
-  if (!c) return res.status(400).json({ success: false, message: "พิกัดไม่ถูกต้อง" });
-
-  // ข้อมูลเป็นกริดราว 10 กม. ปัด 2 ตำแหน่ง (~1 กม.) แล้ว cache 30 นาที
-  const key = `air:${c.lat.toFixed(2)},${c.lng.toFixed(2)}`;
-  const cached = getCache<unknown>(key);
-  if (cached) return res.json({ success: true, data: cached });
-
-  try {
-    const qs = new URLSearchParams({
-      latitude: c.lat.toFixed(4),
-      longitude: c.lng.toFixed(4),
-      current: "pm2_5,pm10,us_aqi",
-      timezone: "Asia/Bangkok",
-    });
-    const json = await fetchJson<OpenMeteoAir>(`${AIR_URL}?${qs}`);
-    if (!json.current) throw new Error("no current data");
-    const data = {
-      pm25: json.current.pm2_5,
-      pm10: json.current.pm10,
-      aqi: json.current.us_aqi,
-      time: json.current.time,
-    };
-    setCache(key, data, 30 * 60 * 1000);
-    res.json({ success: true, data });
-  } catch (err) {
-    externalError(res, err, "คุณภาพอากาศ");
   }
 }

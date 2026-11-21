@@ -47,7 +47,7 @@ const stack = [
   ["State", "Zustand (Client State) + TanStack Query (Server Cache)"],
   ["Backend", "Node.js, Express 5 + TypeScript, JWT, bcrypt, multer"],
   ["Database", "PostgreSQL (Supabase) + Prisma ORM"],
-  ["API ภายนอก", "Nominatim (OpenStreetMap) ที่อยู่และค้นหาสถานที่, Open-Meteo ค่าฝุ่น PM2.5"],
+  ["API ภายนอก", "Nominatim (OpenStreetMap) ที่อยู่และค้นหาสถานที่"],
 ];
 
 

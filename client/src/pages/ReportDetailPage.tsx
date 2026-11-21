@@ -9,7 +9,6 @@ import { useUiStore } from "../stores/useUiStore";
 import { PriorityBadge, RoleBadge, StatusBadge } from "../components/Badges";
 import { DetailSkeleton, ErrorAlert } from "../components/Feedback";
 import { SingleMap } from "../components/MapView";
-import AirQualityCard from "../components/AirQualityCard";
 import ConfirmModal from "../components/ConfirmModal";
 import StatusModal from "../components/StatusModal";
 import { CategoryLabel } from "../components/CategoryIcon";
@@ -17,7 +16,7 @@ import { STATUS_LABEL } from "../types";
 
 import { formatDate, imageSrc, STATUS_COLOR } from "../utils";
 
-// หน้ารายละเอียดเรื่อง: รูป แผนที่ ค่าฝุ่น ประวัติสถานะ และคอมเมนต์
+// หน้ารายละเอียดเรื่อง: รูป แผนที่ ประวัติสถานะ และคอมเมนต์
 export default function ReportDetailPage() {
   const params = useParams();
   const id = Number(params.id);
@@ -331,7 +330,7 @@ export default function ReportDetailPage() {
           </section>
         </div>
 
-        {/* ฝั่งขวา: ข้อมูลประกอบ (แผนที่ แล้วค่าฝุ่น) */}
+        {/* ฝั่งขวา: แผนที่ตำแหน่ง */}
         <aside className="space-y-6">
           <div className="card bg-base-100 border border-base-300">
             <div className="card-body p-4 gap-2">
@@ -349,10 +348,6 @@ export default function ReportDetailPage() {
               </a>
             </div>
           </div>
-
-          <AirQualityCard lat={r.latitude} lng={r.longitude} />
-
-
         </aside>
       </div>
 
