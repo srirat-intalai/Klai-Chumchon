@@ -4,30 +4,28 @@ import { useUiStore } from "../stores/useUiStore";
 import { PriorityBadge, StatusBadge } from "./Badges";
 import CategoryIcon from "./CategoryIcon";
 import type { Report } from "../types";
-import { categoryColor, formatDate, imageSrc } from "../utils";
+import { formatDate, imageSrc } from "../utils";
 
 export default function ReportCard({ report }: { report: Report }) {
   const bookmarks = useUiStore((s) => s.bookmarks);
   const toggleBookmark = useUiStore((s) => s.toggleBookmark);
   const saved = bookmarks.includes(report.id);
-  const color = categoryColor(report.category);
 
   return (
-    <div className="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      {/* มีรูปโชว์รูป ไม่มีรูปโชว์แถบสีประจำหมวดพร้อมไอคอน */}
-      {report.imageUrl ? (
+    <div className="card bg-base-100 border border-base-300 hover:border-base-content/40 transition-colors overflow-hidden">
+      {/* มีรูปค่อยโชว์รูป */}
+      {report.imageUrl && (
         <figure className="h-36 bg-base-200">
           <img src={imageSrc(report.imageUrl)} alt="" loading="lazy" className="w-full h-full object-cover" />
         </figure>
-      ) : (
-        <div className="h-14 flex items-center px-5" style={{ background: color + "1f" }}>
-          <CategoryIcon category={report.category} size={26} />
-        </div>
       )}
 
       <div className="card-body p-5 gap-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <span className="text-sm text-base-content/80">{report.category.name}</span>
+          <span className="text-sm text-base-content/80 inline-flex items-center gap-1.5">
+            <CategoryIcon category={report.category} />
+            {report.category.name}
+          </span>
           <StatusBadge status={report.status} />
         </div>
 
@@ -55,7 +53,7 @@ export default function ReportCard({ report }: { report: Report }) {
           <div className="flex items-center gap-2">
             <PriorityBadge priority={report.priority} />
             <button
-              className={`btn btn-sm btn-circle ${saved ? "btn-warning" : "btn-ghost"}`}
+              className={`btn btn-sm btn-circle ${saved ? "btn-secondary" : "btn-ghost"}`}
               onClick={() => toggleBookmark(report.id)}
               aria-label={saved ? "เลิกติดตามเรื่องนี้" : "ติดตามเรื่องนี้"}
               aria-pressed={saved}
@@ -64,7 +62,7 @@ export default function ReportCard({ report }: { report: Report }) {
               <Star size={16} aria-hidden="true" fill={saved ? "currentColor" : "none"} />
             </button>
           </div>
-          <Link to={`/reports/${report.id}`} className="btn btn-sm btn-primary btn-outline">
+          <Link to={`/reports/${report.id}`} className="btn btn-sm btn-ghost border border-base-300 hover:border-base-content/40">
             ดูรายละเอียด
           </Link>
         </div>

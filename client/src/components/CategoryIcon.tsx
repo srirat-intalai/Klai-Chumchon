@@ -1,9 +1,8 @@
 import { Droplets, Lightbulb, Route, Siren, Tag, Trash2, Trees } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { Category } from "../types";
-import { categoryColor } from "../utils";
 
-// คีย์ icon จากฐานข้อมูล -> ไอคอน (สีอยู่ใน utils.ts)
+// คีย์ icon จากฐานข้อมูล -> ไอคอน ใช้สีตามตัวอักษร (สีแดง/เหลือง/เขียวสงวนไว้ให้สถานะ)
 const ICONS: Record<string, LucideIcon> = {
   road: Route,
   light: Lightbulb,
@@ -16,7 +15,7 @@ const ICONS: Record<string, LucideIcon> = {
 // ไอคอนอย่างเดียว (ตกแต่ง ไม่ต้องให้ screen reader อ่าน)
 export default function CategoryIcon({ category, size = 16 }: { category: Category; size?: number }) {
   const Icon = ICONS[category.icon] || Tag;
-  return <Icon size={size} color={categoryColor(category)} aria-hidden="true" className="shrink-0" />;
+  return <Icon size={size} aria-hidden="true" className="shrink-0 text-base-content/70" />;
 }
 
 // ไอคอน + ชื่อหมวด

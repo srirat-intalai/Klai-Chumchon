@@ -298,14 +298,14 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
           </div>
           {/* ค้นหาสถานที่ (Nominatim) — อยู่ในฟอร์ม เลยต้องกัน Enter ไม่ให้ส่งฟอร์ม */}
           <div className="relative">
-            <div className="join w-full">
+            <div className="flex gap-2 w-full">
               <label htmlFor="place-search" className="sr-only">
                 ค้นหาสถานที่
               </label>
               <input
                 id="place-search"
                 type="search"
-                className="input input-bordered input-sm join-item w-full"
+                className="input input-bordered input-sm flex-1 min-w-0"
                 placeholder="ค้นหาสถานที่ เช่น ตลาด, โรงเรียน, ชื่อถนน"
                 value={query}
                 maxLength={100}
@@ -317,13 +317,13 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
                   }
                 }}
               />
-              <button type="button" className="btn btn-sm join-item" onClick={runSearch} disabled={searching}>
+              <button type="button" className="btn btn-sm btn-secondary" onClick={runSearch} disabled={searching}>
                 {searching ? <span className="loading loading-spinner loading-xs" /> : <Search size={15} aria-hidden="true" />}
                 ค้นหา
               </button>
             </div>
             {results.length > 0 && (
-              <ul className="menu bg-base-100 border border-base-300 rounded-box shadow-lg absolute z-[1000] mt-1 w-full p-1">
+              <ul className="menu bg-base-100 border border-base-300 rounded-box shadow-[0_8px_24px_rgba(44,19,56,0.12)] absolute z-[1000] mt-1 w-full p-1">
                 {results.map((p, i) => (
                   <li key={i}>
                     <button type="button" className="flex flex-col items-start gap-0" onClick={() => pickPlace(p)}>
@@ -345,7 +345,7 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
           ) : form.latitude !== null && form.longitude !== null ? (
             <div className="text-sm space-y-0.5" aria-live="polite">
               <p className="flex gap-1.5">
-                <MapPin size={15} aria-hidden="true" className="mt-0.5 shrink-0 text-primary" />
+                <MapPin size={15} aria-hidden="true" className="mt-0.5 shrink-0 text-base-content" />
                 <span>
                   {addrStatus === "loading" && <span className="text-base-content/70">กำลังหาที่อยู่...</span>}
                   {addrStatus === "notfound" && <span className="text-base-content/70">ไม่พบที่อยู่ของจุดนี้</span>}

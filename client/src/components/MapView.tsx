@@ -50,7 +50,7 @@ export function ReportsMap({ reports, height = "h-[60vh]" }: ReportsMapProps) {
               </p>
               <p className="font-semibold !m-0">{r.title}</p>
               <CategoryLabel category={r.category} className="text-xs" />
-              <Link to={`/reports/${r.id}`} className="link link-primary text-sm inline-flex items-center gap-1">
+              <Link to={`/reports/${r.id}`} className="link font-medium underline-offset-4 text-sm inline-flex items-center gap-1">
                 ดูรายละเอียด <ArrowRight size={14} aria-hidden="true" />
               </Link>
             </div>

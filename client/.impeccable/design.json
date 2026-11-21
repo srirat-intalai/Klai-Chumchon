@@ -1,0 +1,446 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T09:35:28.431921+00:00",
+  "title": "Design System: Klai Chumchon",
+  "extensions": {
+    "colorMeta": {
+      "plum": {
+        "role": "neutral",
+        "displayName": "Plum",
+        "tonalRamp": [
+          "#12071a",
+          "#1d0c27",
+          "#2c1338",
+          "#43275a",
+          "#5f4373",
+          "#86708f",
+          "#b9abbf",
+          "#e9e2ec"
+        ]
+      },
+      "heather": {
+        "role": "neutral",
+        "displayName": "Heather",
+        "tonalRamp": [
+          "#1a0f20",
+          "#2c1c34",
+          "#412a4c",
+          "#5a4466",
+          "#776282",
+          "#9b8aa4",
+          "#c6bccb",
+          "#efeaf1"
+        ]
+      },
+      "magenta": {
+        "role": "primary",
+        "displayName": "Magenta",
+        "tonalRamp": [
+          "#4a1043",
+          "#73226a",
+          "#a13d95",
+          "#c75cba",
+          "#e57cd8",
+          "#ee9fe4",
+          "#f6c9f0",
+          "#fcecf9"
+        ]
+      },
+      "bone": {
+        "role": "neutral",
+        "displayName": "Bone",
+        "tonalRamp": [
+          "#3a3433",
+          "#5e5756",
+          "#857d7c",
+          "#aea6a4",
+          "#d3ccca",
+          "#ece6e4",
+          "#f8f3f2",
+          "#fefbfa"
+        ]
+      },
+      "canvas-wash": {
+        "role": "neutral",
+        "displayName": "Canvas Wash",
+        "tonalRamp": [
+          "#3b3233",
+          "#5f5354",
+          "#867879",
+          "#ad9fa0",
+          "#d2c6c7",
+          "#e9dfe0",
+          "#f8f1f2",
+          "#fdf9f9"
+        ]
+      },
+      "silver": {
+        "role": "neutral",
+        "displayName": "Silver",
+        "tonalRamp": [
+          "#2d2830",
+          "#4a444d",
+          "#6b646e",
+          "#8f8892",
+          "#b3adb5",
+          "#d5d0d7",
+          "#e8e5e9",
+          "#f6f5f7"
+        ]
+      },
+      "bubblegum": {
+        "role": "secondary",
+        "displayName": "Bubblegum Wash",
+        "tonalRamp": [
+          "#4b1f45",
+          "#6e3667",
+          "#955290",
+          "#bb79b5",
+          "#dda5d7",
+          "#f7d8f3",
+          "#fbe9f9",
+          "#fef7fd"
+        ]
+      },
+      "blush": {
+        "role": "secondary",
+        "displayName": "Blush",
+        "tonalRamp": [
+          "#4a2a1f",
+          "#6e4335",
+          "#946150",
+          "#b98674",
+          "#dcb2a2",
+          "#f2d3c6",
+          "#fdeae2",
+          "#fff8f5"
+        ]
+      },
+      "petal": {
+        "role": "secondary",
+        "displayName": "Petal",
+        "tonalRamp": [
+          "#46283c",
+          "#6a4259",
+          "#8f627b",
+          "#b58aa1",
+          "#d6b4c7",
+          "#efd9e6",
+          "#f8ebf3",
+          "#fcf1f8"
+        ]
+      },
+      "mauve": {
+        "role": "neutral",
+        "displayName": "Dusty Mauve",
+        "tonalRamp": [
+          "#1f1823",
+          "#342a3a",
+          "#4d4153",
+          "#6b5a74",
+          "#8a7a92",
+          "#ab9fb1",
+          "#cdc5d1",
+          "#eeeaf0"
+        ]
+      },
+      "amber-accent": {
+        "role": "tertiary",
+        "displayName": "Amber Accent",
+        "tonalRamp": [
+          "#4a3300",
+          "#6e4d05",
+          "#94690f",
+          "#bb8b26",
+          "#ddb04e",
+          "#ffde91",
+          "#ffecc0",
+          "#fff8e8"
+        ]
+      },
+      "status-pending": {
+        "role": "tertiary",
+        "displayName": "Status Red",
+        "tonalRamp": [
+          "#450a0a",
+          "#7f1d1d",
+          "#b91c1c",
+          "#ef4444",
+          "#f87171",
+          "#fca5a5",
+          "#fecaca",
+          "#fef2f2"
+        ]
+      },
+      "status-in-progress": {
+        "role": "tertiary",
+        "displayName": "Status Amber",
+        "tonalRamp": [
+          "#451a03",
+          "#78350f",
+          "#b45309",
+          "#f59e0b",
+          "#fbbf24",
+          "#fcd34d",
+          "#fde68a",
+          "#fffbeb"
+        ]
+      },
+      "status-resolved": {
+        "role": "tertiary",
+        "displayName": "Status Green",
+        "tonalRamp": [
+          "#052e16",
+          "#14532d",
+          "#15803d",
+          "#22c55e",
+          "#4ade80",
+          "#86efac",
+          "#bbf7d0",
+          "#f0fdf4"
+        ]
+      },
+      "status-pending-ink": {
+        "role": "tertiary",
+        "displayName": "Pending Ink"
+      },
+      "status-in-progress-ink": {
+        "role": "tertiary",
+        "displayName": "In-progress Ink"
+      },
+      "status-resolved-ink": {
+        "role": "tertiary",
+        "displayName": "Resolved Ink"
+      },
+      "error": {
+        "role": "tertiary",
+        "displayName": "Error"
+      },
+      "success": {
+        "role": "tertiary",
+        "displayName": "Success"
+      },
+      "night-base": {
+        "role": "neutral",
+        "displayName": "Night Base"
+      },
+      "night-canvas": {
+        "role": "neutral",
+        "displayName": "Night Canvas"
+      },
+      "night-line": {
+        "role": "neutral",
+        "displayName": "Night Hairline"
+      },
+      "night-text": {
+        "role": "neutral",
+        "displayName": "Night Text"
+      },
+      "night-secondary": {
+        "role": "neutral",
+        "displayName": "Night Secondary"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Home hero headline on plum only, with the italic Magenta emphasis phrase."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page h1 (700) and section h2 (600) on the canvas."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Report card titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions, metadata, footer copy."
+      },
+      "body-lead": {
+        "displayName": "Lead",
+        "purpose": "Hero subcopy."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Status pills."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-panel",
+        "value": "0 8px 24px rgba(44,19,56,0.12)",
+        "purpose": "Only for floating overlay panels such as place-search results."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-color",
+        "value": "color/border/background transition, default duration",
+        "purpose": "Hover changes border or fill only; no movement or elevation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ],
+    "stageTreatments": [
+      {
+        "name": "stage-glass",
+        "value": "background rgb(255 255 255 / 0.06-0.08); border 1px rgb(255 255 255 / 0.15)",
+        "purpose": "Nested surfaces on plum: hero map frame, count pills."
+      }
+    ],
+    "focus": [
+      {
+        "name": "focus-light",
+        "value": "outline 2px solid #2c1338; offset 2px"
+      },
+      {
+        "name": "focus-stage-and-night",
+        "value": "outline-color #e57cd8"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one Magenta element on a light screen: form submit and primary action.",
+      "html": "<button class=\"ds-btn-primary\">บันทึก</button>",
+      "css": ".ds-btn-primary{background:#e57cd8;color:#2c1338;font-family:Inter,'Noto Sans Thai',sans-serif;font-weight:500;font-size:14px;height:40px;padding:0 16px;border:1px solid #e57cd8;border-radius:26px;box-shadow:none;cursor:pointer;transition:background .2s,border-color .2s}.ds-btn-primary:hover{background:#d968cb;border-color:#d968cb}.ds-btn-primary:focus-visible{outline:2px solid #2c1338;outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Bubblegum pill for secondary actions such as search.",
+      "html": "<button class=\"ds-btn-secondary\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg>ค้นหา</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;gap:6px;background:#f7d8f3;color:#2c1338;font-family:Inter,'Noto Sans Thai',sans-serif;font-weight:500;font-size:14px;height:40px;padding:0 16px;border:1px solid #f7d8f3;border-radius:26px;cursor:pointer;transition:background .2s}.ds-btn-secondary:hover{background:#efc6e9}.ds-btn-secondary:focus-visible{outline:2px solid #2c1338;outline-offset:2px}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Silver-bordered quiet button on the canvas, e.g. view details.",
+      "html": "<button class=\"ds-btn-outline\">ดูรายละเอียด</button>",
+      "css": ".ds-btn-outline{background:transparent;color:#412a4c;font-family:Inter,'Noto Sans Thai',sans-serif;font-weight:500;font-size:13px;height:32px;padding:0 12px;border:1px solid #d5d0d7;border-radius:26px;cursor:pointer;transition:border-color .2s}.ds-btn-outline:hover{border-color:rgba(65,42,76,.4)}.ds-btn-outline:focus-visible{outline:2px solid #2c1338;outline-offset:2px}"
+    },
+    {
+      "name": "Stage Buttons",
+      "kind": "button",
+      "refersTo": "button-stage-solid",
+      "description": "Bone solid and Bone outline buttons on the plum hero.",
+      "html": "<div class=\"ds-stage\"><button class=\"ds-btn-bone\">+ แจ้งปัญหาใหม่</button> <button class=\"ds-btn-bone-outline\">ดูแผนที่เต็ม</button></div>",
+      "css": ".ds-stage{background:#2c1338;padding:24px;border-radius:10px;display:flex;gap:12px;flex-wrap:wrap}.ds-btn-bone,.ds-btn-bone-outline{font-family:Inter,'Noto Sans Thai',sans-serif;font-weight:500;font-size:16px;height:48px;padding:0 20px;border-radius:26px;cursor:pointer;transition:background .2s,color .2s,border-color .2s}.ds-btn-bone{background:#fefbfa;color:#2c1338;border:1px solid #fefbfa}.ds-btn-bone:hover{background:#fdeae2;border-color:#fdeae2}.ds-btn-bone-outline{background:transparent;color:#fefbfa;border:1px solid rgba(254,251,250,.6)}.ds-btn-bone-outline:hover{background:#fefbfa;color:#2c1338;border-color:#fefbfa}.ds-stage button:focus-visible{outline:2px solid #e57cd8;outline-offset:2px}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Bordered field, 10px radius, Plum focus ring.",
+      "html": "<label class=\"ds-label\">หัวข้อเรื่อง<input class=\"ds-input\" placeholder=\"เช่น ถนนเป็นหลุมหน้าโรงเรียน\"></label>",
+      "css": ".ds-label{display:flex;flex-direction:column;gap:4px;font-family:Inter,'Noto Sans Thai',sans-serif;font-weight:500;font-size:14px;color:#412a4c}.ds-input{height:40px;padding:0 12px;background:#fefbfa;color:#412a4c;border:1px solid #d5d0d7;border-radius:10px;font:inherit;font-weight:400}.ds-input:focus-visible{outline:2px solid #2c1338;outline-offset:2px}"
+    },
+    {
+      "name": "Plum Navbar",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Plum header with pill nav items, Bubblegum active pill and Blush CTA.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-brand\"><b>Klai</b> <span>Chumchon</span></span><a class=\"ds-nav-item is-active\" href=\"#\">หน้าแรก</a><a class=\"ds-nav-item\" href=\"#\">เรื่องที่แจ้ง</a><a class=\"ds-nav-item\" href=\"#\">แผนที่</a><a class=\"ds-nav-cta\" href=\"#\">+ แจ้งปัญหา</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:4px;background:#2c1338;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.1);font-family:Inter,'Noto Sans Thai',sans-serif;font-size:14px}.ds-brand{font-family:Prompt,'Noto Sans Thai',sans-serif;font-size:20px;color:#fefbfa;margin-right:auto}.ds-brand span{color:#fdeae2;font-weight:400}.ds-nav-item{color:rgba(254,251,250,.8);text-decoration:none;padding:6px 12px;border-radius:200px;transition:background .2s}.ds-nav-item:hover{background:rgba(255,255,255,.1);color:#fefbfa}.ds-nav-item.is-active{background:#f7d8f3;color:#2c1338;font-weight:500}.ds-nav-cta{margin-left:auto;background:#fdeae2;color:#2c1338;text-decoration:none;font-weight:500;padding:8px 16px;border-radius:200px}.ds-nav-cta:hover{background:#f7d8f3}.ds-nav a:focus-visible{outline:2px solid #e57cd8;outline-offset:2px}"
+    },
+    {
+      "name": "Status Pills",
+      "kind": "chip",
+      "refersTo": "status-pill-pending",
+      "description": "Tinted status pills with a leading dot; the same hues as map pins.",
+      "html": "<span class=\"ds-status ds-pending\">รอดำเนินการ</span> <span class=\"ds-status ds-progress\">กำลังแก้ไข</span> <span class=\"ds-status ds-resolved\">เสร็จสิ้น</span>",
+      "css": ".ds-status{display:inline-flex;align-items:center;gap:6px;border-radius:200px;padding:2px 10px;font-family:Inter,'Noto Sans Thai',sans-serif;font-size:13px;font-weight:600;line-height:1.5;white-space:nowrap}.ds-status::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}.ds-pending{background:rgb(239 68 68/.14);color:#9b1c1c}.ds-progress{background:rgb(245 158 11/.2);color:#7c4a03}.ds-resolved{background:rgb(34 197 94/.16);color:#166534}"
+    },
+    {
+      "name": "Report Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat Bone card with Silver hairline, monochrome category icon and status pill.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-top\"><span class=\"ds-cat\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"19\" r=\"3\"/><path d=\"M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15\"/><circle cx=\"18\" cy=\"5\" r=\"3\"/></svg>ถนนและทางเท้า</span><span class=\"ds-pill\">รอดำเนินการ</span></div><h3 class=\"ds-card-title\">ถนนเป็นหลุมลึกหน้าโรงเรียน</h3><p class=\"ds-card-body\">หลุมกว้างประมาณ 1 เมตร ฝนตกน้ำขังจนมองไม่เห็น</p></article>",
+      "css": ".ds-card{background:#fefbfa;border:1px solid #d5d0d7;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:12px;max-width:340px;font-family:Inter,'Noto Sans Thai',sans-serif;color:#412a4c;transition:border-color .2s}.ds-card:hover{border-color:rgba(65,42,76,.4)}.ds-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.ds-cat{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:rgba(65,42,76,.8)}.ds-cat svg{color:rgba(65,42,76,.7)}.ds-pill{display:inline-flex;align-items:center;gap:6px;border-radius:200px;padding:2px 10px;font-size:13px;font-weight:600;background:rgb(239 68 68/.14);color:#9b1c1c}.ds-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}.ds-card-title{margin:0;font-family:Prompt,'Noto Sans Thai',sans-serif;font-weight:600;font-size:16px;line-height:1.375;letter-spacing:-.01em}.ds-card-body{margin:0;font-size:14px;color:rgba(65,42,76,.8)}"
+    },
+    {
+      "name": "Hero Emphasis Headline",
+      "kind": "custom",
+      "refersTo": "display",
+      "description": "Signature: Bone display headline on plum with one italic Magenta phrase.",
+      "html": "<div class=\"ds-hero\"><h1>เห็นปัญหาในชุมชน<br>แจ้งได้ใน<em>ไม่กี่นาที</em></h1></div>",
+      "css": ".ds-hero{background:#2c1338;padding:32px;border-radius:10px}.ds-hero h1{margin:0;font-family:Prompt,'Noto Sans Thai',sans-serif;font-weight:600;font-size:40px;line-height:1.15;letter-spacing:-.01em;color:#fefbfa}.ds-hero em{font-style:italic;font-weight:500;color:#e57cd8}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Plum Stage and the Shared Ledger",
+    "overview": "A deep plum stage frames the app: the sticky header, the home hero band and the footer are all the same plum (#2c1338) surface, and everything between them is a calm, warm bone workspace. The community's problems sit on that workspace as one honest ledger of flat, hairline-bordered cards. The world is a user-pinned, Toggl-Track-style system: soft confectionery pills (Bubblegum, Blush) against plum, a single hot Magenta used sparingly, and generous 26px button curves.\n\nThe system is flat and quiet on purpose. Colour carries meaning, not decoration: red, amber and green belong only to report status and appear identically on map pins, status pills and the hero counts, so a resident reads status at a glance anywhere in the app. Everything else is plum, heather, bone and silver, with Magenta rationed to one element per screen.\n\nDensity is that of an operational tool: standard app shell, 3-column card grids on desktop, a single column on phones. The only Persuade-leaning moment is the home hero, where the headline carries the signature Magenta italic emphasis phrase on plum.",
+    "keyCharacteristics": [
+      "Plum stage (header, hero, footer) around a Bone canvas.",
+      "Flat surfaces with 1px Silver hairlines; no shadows at rest.",
+      "Pills everywhere a choice or state is shown: active nav, nav CTA, status, counts.",
+      "One Magenta element per screen; italic Magenta emphasis lives only on plum.",
+      "Status colours are a reserved vocabulary shared by pins, pills and counts.",
+      "Thai-first type: Prompt display, Inter with Noto Sans Thai for body."
+    ],
+    "rules": [
+      {
+        "name": "The One Magenta Rule",
+        "body": "Each screen gets exactly one Magenta element: the primary action button, or on the plum hero the emphasis phrase. If a screen already has a Magenta button, no other Magenta appears.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reserved Signal Rule",
+        "body": "Red, amber and green mean report status and nothing else. Category icons, priority and decoration never use them; the same hue marks a status on the pin, the pill and the count.",
+        "section": "colors"
+      },
+      {
+        "name": "The Opacity Not Grey Rule",
+        "body": "Secondary text is Heather (or Bone on the stage) at reduced opacity (80%, 75%, 70%), never a new grey.",
+        "section": "colors"
+      },
+      {
+        "name": "The Plum-Only Italic Rule",
+        "body": "The italic Magenta emphasis is used only on the plum stage, where it has enough contrast. Canvas headings stay upright Heather.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Ledger Rule",
+        "body": "Cards, buttons, inputs and pills never cast shadows. A hover state changes the border (Silver to Heather at 40%) or the fill, not the elevation.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** put the header, the home hero band and the footer on the Plum stage (#2c1338), and everything else on Bone (#fefbfa).",
+      "**Do** keep exactly one Magenta element per screen: the primary button, or the italic emphasis phrase on the plum hero.",
+      "**Do** show status as a tinted pill with a dot, and use the same hue for its map pin and count.",
+      "**Do** use 10px for cards and inputs, 26px for buttons and 200px for pills.",
+      "**Do** use Bubblegum or Blush pills for active navigation, secondary actions and the nav CTA.",
+      "**Do** separate surfaces with 1px Silver hairlines and express hover through border or fill changes.",
+      "**Do** use Prompt for headings and Inter with Noto Sans Thai for body so Thai renders correctly."
+    ],
+    "donts": [
+      "**Don't** use red, amber or green for anything other than report status (not categories, not priority, not decoration).",
+      "**Don't** set Magenta text or the italic emphasis on Bone; it lacks contrast there.",
+      "**Don't** add shadows to cards, buttons, inputs or pills; the only shadow is the floating overlay panel.",
+      "**Don't** tint category icons; they stay monochrome Heather.",
+      "**Don't** introduce new greys for secondary text; use Heather or Bone at reduced opacity.",
+      "**Don't** substitute GT Haptik or Inter alone for headings or Thai copy; they lack Thai glyphs."
+    ]
+  }
+}

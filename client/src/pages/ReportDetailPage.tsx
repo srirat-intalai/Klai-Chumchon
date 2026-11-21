@@ -147,7 +147,7 @@ export default function ReportDetailPage() {
                 </button>
                 <div className="flex gap-4">
                   {canEdit && (
-                    <Link to={`/reports/${r.id}/edit`} className="btn btn-outline btn-primary">
+                    <Link to={`/reports/${r.id}/edit`} className="btn btn-outline">
                       แก้ไข
                     </Link>
                   )}
@@ -213,13 +213,13 @@ export default function ReportDetailPage() {
                   {(commentError || addComment.isError) && (
                     <p className="text-error text-sm">{commentError || addComment.error?.message}</p>
                   )}
-                  <button className="btn btn-primary btn-sm" disabled={addComment.isPending}>
+                  <button className="btn btn-neutral btn-sm" disabled={addComment.isPending}>
                     {addComment.isPending ? "กำลังส่ง..." : "ส่งความคิดเห็น"}
                   </button>
                 </form>
               ) : (
                 <p className="mt-4 text-sm">
-                  <Link to={`/login?next=/reports/${r.id}`} className="link link-primary">
+                  <Link to={`/login?next=/reports/${r.id}`} className="link font-medium underline-offset-4">
                     เข้าสู่ระบบ
                   </Link>{" "}
                   เพื่อแสดงความคิดเห็น
@@ -241,7 +241,7 @@ export default function ReportDetailPage() {
                 href={`https://www.google.com/maps?q=${r.latitude},${r.longitude}`}
                 target="_blank"
                 rel="noreferrer"
-                className="link link-primary text-sm inline-flex items-center gap-1"
+                className="link font-medium underline-offset-4 text-sm inline-flex items-center gap-1"
               >
                 เปิดใน Google Maps <ExternalLink size={14} aria-hidden="true" />
               </a>
@@ -251,7 +251,7 @@ export default function ReportDetailPage() {
           <AirQualityCard lat={r.latitude} lng={r.longitude} />
 
           {isStaff && (
-            <div className="card bg-base-100 border-2 border-primary/40">
+            <div className="card bg-secondary/40 border border-base-300">
               <div className="card-body p-4 gap-3">
                 <h2 className="font-semibold flex items-center gap-2">
                   <Wrench size={18} aria-hidden="true" /> สำหรับเจ้าหน้าที่

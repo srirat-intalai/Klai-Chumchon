@@ -1,18 +1,211 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: emerald --default, dim;
+  themes: false;
 }
 
-/* ปรับธีม emerald: พื้นหลังเป็นเทาอมเขียวอ่อน ไม่ทึบแบนเหมือนค่าเริ่มต้น */
+/* ---------- ธีมสว่าง: พื้นครีม (Bone) เวทีม่วงเข้ม (Plum) สีเน้นชมพู (Magenta) ---------- */
 @plugin "daisyui/theme" {
-  name: "emerald";
+  name: "klai";
   default: true;
-  --color-base-200: oklch(97% 0.012 165);
-  --color-base-300: oklch(91% 0.018 165);
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #fefbfa; /* Bone: การ์ดและพื้นเนื้อหา */
+  --color-base-200: #f8f1f2; /* พื้นหน้าเว็บ อมชมพูจาง */
+  --color-base-300: #d5d0d7; /* Silver: เส้นขอบ */
+  --color-base-content: #412a4c; /* Heather */
+
+  --color-primary: #e57cd8; /* Magenta: ใช้กับปุ่มหลักปุ่มเดียวต่อหน้า */
+  --color-primary-content: #2c1338;
+  --color-secondary: #f7d8f3; /* Bubblegum Wash: ปุ่มรอง */
+  --color-secondary-content: #2c1338;
+  --color-accent: #ffde91; /* Amber */
+  --color-accent-content: #2c1338;
+  --color-neutral: #2c1338; /* Plum */
+  --color-neutral-content: #fefbfa;
+
+  --color-info: #6b5a74;
+  --color-info-content: #fefbfa;
+  --color-success: #15803d;
+  --color-success-content: #f0fdf4;
+  --color-warning: #f59e0b;
+  --color-warning-content: #2c1338;
+  --color-error: #c53030;
+  --color-error-content: #fff5f5;
+
+  --radius-selector: 200px; /* badge, toggle: pill */
+  --radius-field: 10px; /* input, select */
+  --radius-box: 10px; /* card, modal, alert */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0; /* แบน ไม่ใช้เงา */
+  --noise: 0;
+}
+
+/* ---------- ธีมมืด: พื้นเป็นม่วงเข้ม ตัวอักษรครีม ---------- */
+@plugin "daisyui/theme" {
+  name: "klai-night";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #2a1536;
+  --color-base-200: #1f0e29;
+  --color-base-300: #4a3556;
+  --color-base-content: #f3e9f3;
+
+  --color-primary: #e57cd8;
+  --color-primary-content: #2c1338;
+  --color-secondary: #4a2d57;
+  --color-secondary-content: #fae5f7;
+  --color-accent: #ffde91;
+  --color-accent-content: #2c1338;
+  --color-neutral: #160a1d;
+  --color-neutral-content: #fefbfa;
+
+  --color-info: #c0b8c3;
+  --color-info-content: #2c1338;
+  --color-success: #4ade80;
+  --color-success-content: #052e16;
+  --color-warning: #fbbf24;
+  --color-warning-content: #2c1338;
+  --color-error: #f87171;
+  --color-error-content: #2c0707;
+
+  --radius-selector: 200px;
+  --radius-field: 10px;
+  --radius-box: 10px;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme {
+  --font-display: "Prompt", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+
+  --color-plum: #2c1338;
+  --color-heather: #412a4c;
+  --color-magenta: #e57cd8;
+  --color-bone: #fefbfa;
+  --color-silver: #d5d0d7;
+  --color-blush: #fdeae2;
+  --color-petal: #fcf1f8;
+  --color-bubblegum: #f7d8f3;
+  --color-mauve: #6b5a74;
 }
 
 @layer base {
   body {
-    font-family: 'Prompt', system-ui, sans-serif;
+    font-family: var(--font-sans);
+    font-feature-settings: "tnum" 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  /* ตัวเลขในตารางและสถิติให้ความกว้างเท่ากัน */
+  table,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: #f7d8f3;
+    color: #2c1338;
+  }
+
+  /* วงโฟกัส: บนพื้นสว่างใช้ม่วงเข้ม (ชมพูคอนทราสต์ไม่พอ) บนพื้นม่วงใช้ชมพู */
+  :focus-visible {
+    outline: 2px solid #2c1338;
+    outline-offset: 2px;
+  }
+  .stage :focus-visible,
+  [data-theme="klai-night"] :focus-visible {
+    outline-color: #e57cd8;
+  }
+}
+
+/* DaisyUI ตั้งสีวงโฟกัสของ .btn เองใน layer ที่สูงกว่า base เลยต้องย้ำใน utilities */
+@layer utilities {
+  :where(.btn, a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid #2c1338;
+    outline-offset: 2px;
+  }
+  .stage :where(.btn, a, button, input, select, textarea, [tabindex]):focus-visible,
+  [data-theme="klai-night"] :where(.btn, a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline-color: #e57cd8;
+  }
+
+  * {
+    scrollbar-color: #c0b8c3 transparent;
+  }
+}
+
+@layer components {
+  /* ปุ่มโค้ง 26px ตาม design system (input ยังโค้ง 10px) */
+  .btn {
+    --radius-field: 26px; /* DaisyUI อ่านค่านี้เป็นมุมของปุ่ม */
+    font-weight: 500;
+    box-shadow: none;
+  }
+  .btn-square,
+  .btn-circle {
+    border-radius: 200px;
+  }
+
+  /* คำเน้นในหัวข้อ: ตัวเอียงสีชมพู ใช้บนพื้นม่วงเข้มเท่านั้น (คอนทราสต์พอ) */
+  .emphasis {
+    font-style: italic;
+    font-weight: 500;
+    color: #e57cd8;
+  }
+
+  /* ป้ายสถานะ: พื้นจางสีเดียวกับหมุด ตัวอักษรสีเข้มของสีนั้น */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 200px;
+    padding: 0.125rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .status-pill::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status-pill.pending { background: rgb(239 68 68 / 0.14); color: #9b1c1c; }
+  .status-pill.in-progress { background: rgb(245 158 11 / 0.2); color: #7c4a03; }
+  .status-pill.resolved { background: rgb(34 197 94 / 0.16); color: #166534; }
+  [data-theme="klai-night"] .status-pill.pending { color: #fca5a5; }
+  [data-theme="klai-night"] .status-pill.in-progress { color: #fcd34d; }
+  [data-theme="klai-night"] .status-pill.resolved { color: #86efac; }
+
+  /* แถบเวทีม่วงเข้ม (header, hero, footer) */
+  .stage {
+    background: #2c1338;
+    color: #fefbfa;
+  }
+}
+
+/* skeleton บนพื้นม่วงเข้ม: ใช้ขาวจางแทนเทาสว่าง (ต้องอยู่ใน utilities ถึงจะชนะ DaisyUI) */
+@layer utilities {
+  .stage .skeleton {
+    background-color: rgb(255 255 255 / 0.08);
+    background-image: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.12) 50%, transparent 60%);
   }
 }

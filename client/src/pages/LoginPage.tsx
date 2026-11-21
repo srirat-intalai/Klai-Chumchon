@@ -80,7 +80,7 @@ export default function LoginPage() {
 
           <p className="text-sm text-center">
             ยังไม่มีบัญชี?{" "}
-            <Link to={`/register?next=${encodeURIComponent(next)}`} className="link link-primary">
+            <Link to={`/register?next=${encodeURIComponent(next)}`} className="link font-medium underline-offset-4">
               สมัครสมาชิก
             </Link>
           </p>

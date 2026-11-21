@@ -37,3 +37,6 @@ server/uploads/*
 .claude/
 .codex/
 .gemini/
+
+# ภาพทำงานของ Impeccable reviewer (ไม่ใช่ส่วนของงาน)
+client/.impeccable/review/
