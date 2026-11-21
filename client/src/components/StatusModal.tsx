@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useUpdateStatus } from "../hooks/useReports";
 import { useUiStore } from "../stores/useUiStore";
 import { StatusBadge } from "./Badges";
+import Dialog from "./Dialog";
 import { STATUS_LABEL } from "../types";
 import type { ReportStatus } from "../types";
 import { STATUS_COLOR } from "../utils";
@@ -14,10 +15,17 @@ interface Props {
 
 const statusList: ReportStatus[] = ["PENDING", "IN_PROGRESS", "RESOLVED"];
 
+// เลือก "สถานะถัดไป" ไว้ให้ (เรื่องที่เสร็จแล้วเปิดใหม่เป็นกำลังแก้ไข)
+const NEXT_STATUS: Record<ReportStatus, ReportStatus> = {
+  PENDING: "IN_PROGRESS",
+  IN_PROGRESS: "RESOLVED",
+  RESOLVED: "IN_PROGRESS",
+};
+
 // เปลี่ยนสถานะต้องผ่าน modal นี้ทุกครั้ง: เลือกสถานะ + หมายเหตุ แล้วค่อยกดยืนยัน
 // กันการเผลอเปลี่ยนจาก dropdown แล้วเกิด StatusLog ผิด ๆ
 export default function StatusModal({ report, onClose }: Props) {
-  const [status, setStatus] = useState<ReportStatus>(report.status);
+  const [status, setStatus] = useState<ReportStatus>(NEXT_STATUS[report.status]);
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const updateStatus = useUpdateStatus();
@@ -45,7 +53,7 @@ export default function StatusModal({ report, onClose }: Props) {
   const pending = updateStatus.isPending;
 
   return (
-    <div className="modal modal-open" role="dialog" aria-modal="true" aria-labelledby="status-modal-title">
+    <Dialog labelledBy="status-modal-title" busy={pending} onClose={onClose}>
       <form onSubmit={submit} className="modal-box space-y-4">
         <div>
           <h3 id="status-modal-title" className="font-bold text-lg">
@@ -64,15 +72,17 @@ export default function StatusModal({ report, onClose }: Props) {
           {statusList.map((s) => (
             <label
               key={s}
-              className={`flex items-center gap-3 rounded-box border p-3 cursor-pointer ${
+              className={`flex items-center gap-3 rounded-box border p-3 ${
                 status === s ? "border-base-content/60 bg-secondary/60" : "border-base-300"
-              } ${s === report.status ? "opacity-60" : ""}`}
+              } ${s === report.status ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
             >
               <input
                 type="radio"
                 name="status"
                 className="radio radio-sm"
                 checked={status === s}
+                disabled={s === report.status}
+                data-autofocus={status === s ? true : undefined}
                 onChange={() => setStatus(s)}
               />
               <span className="inline-block w-3 h-3 rounded-full" style={{ background: STATUS_COLOR[s] }} aria-hidden="true" />
@@ -103,13 +113,12 @@ export default function StatusModal({ report, onClose }: Props) {
           <button type="button" className="btn" onClick={onClose} disabled={pending}>
             ยกเลิก
           </button>
-          <button type="submit" className="btn btn-primary" disabled={pending}>
+          <button type="submit" className="btn btn-primary" disabled={pending || status === report.status}>
             {pending && <span className="loading loading-spinner loading-sm" />}
             ยืนยันเปลี่ยนสถานะ
           </button>
         </div>
       </form>
-      <div className="modal-backdrop" onClick={pending ? undefined : onClose} />
-    </div>
+    </Dialog>
   );
 }
