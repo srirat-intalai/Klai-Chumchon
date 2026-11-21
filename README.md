@@ -146,6 +146,7 @@ Klai-Chumchon/
 | 17–19 | (แอดมิน) จัดการเรื่อง, จัดการผู้ใช้, ยืนยันการลบ |
 | 20–23 | โหมดมืด, Skeleton ตอนโหลด, Error Alert, Server ไม่ตอบ |
 | 24–26 | Schema database (Prisma Studio Visualizer), ตาราง Report, ตาราง StatusLog |
+| 27–29 | (API ภายนอก) ค้นหาสถานที่, ที่อยู่ขึ้นเองหลังปักหมุด (Nominatim), ค่าฝุ่น PM2.5 ในหน้ารายละเอียด (Open-Meteo) |
 
 ## วิธีติดตั้งและรัน
 
