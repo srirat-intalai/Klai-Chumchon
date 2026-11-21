@@ -44,3 +44,9 @@ export function formatDistance(km: number): string {
   if (km < 1) return `${Math.round(km * 1000)} ม.`;
   return `${km.toFixed(1)} กม.`;
 }
+
+// ตัวอักษรแรกของชื่อสำหรับ avatar: ข้ามสระหน้า (เ แ โ ใ ไ) เช่น "เจ้าหน้าที่" -> "จ"
+export function initialOf(name: string): string {
+  const trimmed = name.trim().replace(/^[เแโใไ]+/, "");
+  return trimmed.charAt(0) || name.trim().charAt(0);
+}

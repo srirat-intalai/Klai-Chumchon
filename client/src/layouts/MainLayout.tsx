@@ -6,6 +6,7 @@ import { useUiStore } from "../stores/useUiStore";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useMe } from "../hooks/useAuth";
 import { RoleBadge } from "../components/Badges";
+import { initialOf } from "../utils";
 
 // DaisyUI dropdown เปิดอยู่ตราบที่ยังมี focus กดลิงก์แล้วต้อง blur ให้เมนูปิด
 function closeDropdown() {
@@ -137,7 +138,7 @@ export default function MainLayout() {
             <div className="dropdown dropdown-end">
               <div tabIndex={0} role="button" className="btn btn-ghost btn-circle border-0 hover:bg-white/10 avatar avatar-placeholder" aria-label="เมนูผู้ใช้">
                 <div className="bg-bubblegum text-plum w-9 rounded-full font-semibold">
-                  <span>{user.name.charAt(0)}</span>
+                  <span>{initialOf(user.name)}</span>
                 </div>
               </div>
               <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 text-base-content border border-base-300 rounded-box z-40 mt-3 w-56 p-2">
