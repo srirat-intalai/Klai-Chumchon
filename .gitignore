@@ -31,3 +31,9 @@ server/src/generated
 # รูปที่ผู้ใช้อัปโหลด
 server/uploads/*
 !server/uploads/.gitkeep
+
+# การตั้งค่าเครื่องมือ AI (Impeccable / Claude Code / Codex / Gemini) ไม่ใช่ส่วนของงาน
+.agents/
+.claude/
+.codex/
+.gemini/
