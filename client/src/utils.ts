@@ -30,3 +30,17 @@ export function safeNext(value: string | null): string {
   if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return "/";
   return value;
 }
+
+// ระยะทางเป็นกิโลเมตรระหว่างสองพิกัด (สูตร haversine)
+export function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(a));
+}
+
+export function formatDistance(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)} ม.`;
+  return `${km.toFixed(1)} กม.`;
+}

@@ -4,9 +4,10 @@ import { useUiStore } from "../stores/useUiStore";
 import { PriorityBadge, StatusBadge } from "./Badges";
 import CategoryIcon from "./CategoryIcon";
 import type { Report } from "../types";
-import { formatDate, imageSrc } from "../utils";
+import { formatDate, formatDistance, imageSrc } from "../utils";
 
-export default function ReportCard({ report }: { report: Report }) {
+// distanceKm: ระยะจากผู้ใช้ (มีเฉพาะตอนเรียงแบบ "ใกล้ฉัน")
+export default function ReportCard({ report, distanceKm }: { report: Report; distanceKm?: number }) {
   const bookmarks = useUiStore((s) => s.bookmarks);
   const toggleBookmark = useUiStore((s) => s.toggleBookmark);
   const saved = bookmarks.includes(report.id);
@@ -36,6 +37,9 @@ export default function ReportCard({ report }: { report: Report }) {
           <p className="flex items-center gap-1.5">
             <MapPin size={14} aria-hidden="true" className="shrink-0" />
             <span className="line-clamp-1">{report.location}</span>
+            {distanceKm !== undefined && (
+              <span className="shrink-0 font-semibold text-base-content tabular">· ห่าง {formatDistance(distanceKm)}</span>
+            )}
           </p>
           <p className="flex items-center gap-1.5">
             <Clock size={14} aria-hidden="true" className="shrink-0" />
