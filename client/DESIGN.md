@@ -275,3 +275,15 @@ Solid status-coloured pins (red, amber, green) matching the status pill of the s
 - **Don't** tint category icons; they stay monochrome Heather.
 - **Don't** introduce new greys for secondary text; use Heather or Bone at reduced opacity.
 - **Don't** substitute GT Haptik or Inter alone for headings or Thai copy; they lack Thai glyphs.
+
+## Known detector exceptions
+
+Findings the Impeccable detector reports that are intentional or false positives (verified 2026-11-21). Do not "fix" these.
+
+- **AQI severity colours** (`AirQualityCard.tsx`: `#3b82f6`, `#22c55e`, `#eab308`, `#f97316`, `#ef4444`): the Thai Pollution Control Department's PM2.5 scale. Functional data colours, not brand colours; used only inside the air-quality card.
+- **Map marker shadow** (`MapView.tsx`, `rgba(0,0,0,.45)`): separates status pins from busy OpenStreetMap tiles.
+- **Active nav pill "low contrast 1.2:1"**: false positive from canvas sampling against the plum header. Actual pair is Plum `#2c1338` on Bubblegum `#f7d8f3` (≈13:1); the in-page overlay does not flag it.
+- **`side-tab` on `.input` / `.select`**: DaisyUI 5's own inset field depth, not an authored accent stripe.
+- **`cramped-padding` on `.badge` and `.leaflet-control-attribution`**: fixed-height DaisyUI badge and a third-party Leaflet control.
+- **`overused-font` (Inter)**: deliberate body face, paired with Noto Sans Thai for Thai glyphs and Prompt for display.
+- **`straggler`**: Thai has no inter-word spaces, so single-word last lines in user-written descriptions are data-dependent.

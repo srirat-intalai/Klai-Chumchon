@@ -1,3 +1,4 @@
+import { initialOf } from "../utils";
 // ข้อมูลสมาชิกกลุ่ม ใส่รูปได้โดยวางไฟล์ใน client/public/members/ แล้วใส่ชื่อไฟล์ที่ photo
 interface Member {
   name: string;
@@ -49,9 +50,6 @@ const stack = [
   ["API ภายนอก", "Nominatim (OpenStreetMap) ที่อยู่และค้นหาสถานที่, Open-Meteo ค่าฝุ่น PM2.5"],
 ];
 
-function initials(name: string) {
-  return name.trim().charAt(0);
-}
 
 export default function AboutPage() {
   return (
@@ -72,7 +70,7 @@ export default function AboutPage() {
               ) : (
                 <div className="avatar avatar-placeholder">
                   <div className="bg-secondary text-secondary-content w-28 rounded-full">
-                    <span className="text-4xl">{initials(m.name)}</span>
+                    <span className="text-4xl">{initialOf(m.name)}</span>
                   </div>
                 </div>
               )}

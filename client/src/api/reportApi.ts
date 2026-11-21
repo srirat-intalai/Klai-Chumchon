@@ -21,6 +21,16 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 // รูปที่อัปโหลดอยู่ที่ server เดียวกันแต่ไม่มี /api
 export const FILE_URL = API_URL.replace(/\/api\/?$/, "");
 
+// error จาก API พร้อม HTTP status (0 = ต่อ server ไม่ได้) ให้หน้าเว็บแยกกรณีได้ เช่น 404 = ไม่พบ
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 // ยิง request แล้วโยน error เป็นข้อความไทยจากหลังบ้าน ให้ TanStack Query จับไปแสดง
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = useAuthStore.getState().token;
@@ -35,7 +45,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   try {
     res = await fetch(API_URL + path, { ...options, headers });
   } catch {
-    throw new Error("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบว่ารัน server (port 3000) แล้ว");
+    throw new ApiError("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบว่ารัน server (port 3000) แล้ว", 0);
   }
 
   let json: ApiResponse<T> | null = null;
@@ -51,7 +61,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (!res.ok || !json || !json.success) {
-    throw new Error(json?.message || `เกิดข้อผิดพลาด (${res.status})`);
+    throw new ApiError(json?.message || `เกิดข้อผิดพลาด (${res.status})`, res.status);
   }
   return json.data as T;
 }

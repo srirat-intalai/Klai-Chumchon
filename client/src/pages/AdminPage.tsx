@@ -55,7 +55,7 @@ function ReportsTab({ isAdmin }: { isAdmin: boolean }) {
             <li key={r.id} className="bg-base-100 border border-base-300 rounded-box p-4 space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <Link to={`/reports/${r.id}`} className="font-semibold leading-snug hover:underline underline-offset-4">
-                  <span className="text-base-content/60 font-normal tabular">#{r.id}</span> {r.title}
+                  <span className="text-base-content/70 font-normal tabular">#{r.id}</span> {r.title}
                 </Link>
                 <StatusBadge status={r.status} />
               </div>
@@ -197,7 +197,7 @@ function UsersTab({ myId }: { myId: number }) {
             <th>ชื่อ</th>
             <th className="hidden sm:table-cell">อีเมล</th>
             <th className="hidden md:table-cell">เรื่องที่แจ้ง</th>
-            <th>Role</th>
+            <th>บทบาท</th>
           </tr>
         </thead>
         <tbody>
@@ -252,10 +252,10 @@ export default function AdminPage() {
 
       {isAdmin && (
         <div role="tablist" className="tabs tabs-box w-fit">
-          <button role="tab" className={`tab ${tab === "reports" ? "tab-active" : ""}`} onClick={() => setTab("reports")}>
+          <button role="tab" aria-selected={tab === "reports"} className={`tab ${tab === "reports" ? "tab-active" : ""}`} onClick={() => setTab("reports")}>
             เรื่องที่แจ้ง
           </button>
-          <button role="tab" className={`tab ${tab === "users" ? "tab-active" : ""}`} onClick={() => setTab("users")}>
+          <button role="tab" aria-selected={tab === "users"} className={`tab ${tab === "users" ? "tab-active" : ""}`} onClick={() => setTab("users")}>
             ผู้ใช้
           </button>
         </div>

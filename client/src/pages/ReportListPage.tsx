@@ -140,6 +140,7 @@ export default function ReportListPage() {
       {reports.isLoading && <GridSkeleton />}
       {reports.isError && <ErrorAlert message={reports.error.message} onRetry={() => reports.refetch()} />}
       {reports.data && reports.data.length === 0 && <EmptyState text="ไม่พบเรื่องที่ตรงกับตัวกรอง" />}
+      <h2 className="sr-only">รายการเรื่อง</h2>
       {reports.data && reports.data.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {list.map(({ report, km }) => (

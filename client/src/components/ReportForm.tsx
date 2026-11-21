@@ -353,7 +353,7 @@ export default function ReportForm({ initial, oldImageUrl, submitText, pending, 
                   {addrStatus === "idle" && (form.address || <span className="text-base-content/70">ไม่มีข้อมูลที่อยู่</span>)}
                 </span>
               </p>
-              <p className="text-xs text-base-content/60">
+              <p className="text-xs text-base-content/70">
                 พิกัด {form.latitude.toFixed(5)}, {form.longitude.toFixed(5)} · ที่อยู่จาก OpenStreetMap
               </p>
             </div>

@@ -48,7 +48,7 @@ export default function AirQualityCard({ lat, lng }: { lat: number; lng: number 
             {air.data.pm10 !== null && (
               <p className="text-xs text-base-content/70">PM10: {air.data.pm10.toFixed(1)} มคก./ลบ.ม.</p>
             )}
-            <p className="text-xs text-base-content/60">ค่าประมาณจาก Open-Meteo อัปเดตทุกชั่วโมง</p>
+            <p className="text-xs text-base-content/70">ค่าประมาณจาก Open-Meteo อัปเดตทุกชั่วโมง</p>
           </>
         )}
       </div>

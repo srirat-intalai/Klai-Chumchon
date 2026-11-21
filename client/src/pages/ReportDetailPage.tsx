@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { ArrowLeft, ArrowRight, Clock, ExternalLink, History, Map as MapIcon, MapPin, MessageCircle, Pencil, Star, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, SearchX, Clock, ExternalLink, History, Map as MapIcon, MapPin, MessageCircle, Pencil, Star, User } from "lucide-react";
 import { useAddComment, useDeleteComment, useDeleteReport, useReport } from "../hooks/useReports";
 import { useMe } from "../hooks/useAuth";
+import { ApiError } from "../api/reportApi";
 import { useUiStore } from "../stores/useUiStore";
 import { PriorityBadge, RoleBadge, StatusBadge } from "../components/Badges";
 import { DetailSkeleton, ErrorAlert } from "../components/Feedback";
@@ -41,6 +42,19 @@ export default function ReportDetailPage() {
     return <ErrorAlert message="รหัสเรื่องไม่ถูกต้อง" />;
   }
   if (report.isLoading) return <DetailSkeleton />;
+  // ไม่พบเรื่อง (ถูกลบ/ลิงก์ผิด): บอกตรง ๆ ไม่ใช่ error ที่กดลองใหม่แล้วก็ไม่หาย
+  if (report.error instanceof ApiError && report.error.status === 404) {
+    return (
+      <div className="max-w-md mx-auto text-center py-16 space-y-4">
+        <SearchX size={48} aria-hidden="true" className="mx-auto opacity-60" />
+        <h1 className="text-2xl font-semibold">ไม่พบเรื่องนี้</h1>
+        <p className="text-base-content/80">เรื่องรหัส #{id} อาจถูกลบไปแล้ว หรือลิงก์ไม่ถูกต้อง</p>
+        <Link to="/reports" className="btn btn-neutral">
+          <ArrowLeft size={16} aria-hidden="true" /> ดูเรื่องที่แจ้งทั้งหมด
+        </Link>
+      </div>
+    );
+  }
   if (report.isError || !report.data) {
     return (
       <div className="space-y-4">
@@ -129,7 +143,7 @@ export default function ReportDetailPage() {
 
               {/* ความเคลื่อนไหวล่าสุด: คำตอบแรกที่ผู้แจ้งอยากรู้ (เจ้าหน้าที่ว่ายังไง) */}
               {latest && (
-                <section aria-labelledby="latest-update" className="rounded-box border border-base-300 bg-secondary/40 p-4 space-y-2">
+                <section aria-labelledby="latest-update" className="-mx-[var(--card-p,1.5rem)] px-[var(--card-p,1.5rem)] py-4 border-y border-base-300 bg-secondary/40 space-y-2">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h2 id="latest-update" className="text-sm font-semibold flex flex-wrap items-center gap-2">
                       ความเคลื่อนไหวล่าสุด
