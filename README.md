@@ -80,7 +80,7 @@ Klai-Chumchon/
 │   ├── prisma/
 │   │   ├── schema.prisma           # User, Category, Report, StatusLog, Comment
 │   │   ├── migrations/
-│   │   └── seed.ts                 # 8 ผู้ใช้, 6 หมวด, 40 เรื่อง, ประวัติสถานะ, ความคิดเห็น
+│   │   └── seed.ts                 # 8 ผู้ใช้, 6 หมวด, 50 เรื่อง, ประวัติสถานะ, ความคิดเห็น
 │   ├── uploads/                    # รูปที่ผู้ใช้อัปโหลด (ไม่ขึ้น git)
 │   └── src/
 │       ├── server.ts
